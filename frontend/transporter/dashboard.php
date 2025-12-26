@@ -23,57 +23,31 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         <div class="content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Active Assignments</h3>
-                    <p class="stat-number" id="activeAssignments">3</p>
-                    <div class="stat-trend up">On the road</div>
+                    <h3>Total Trips</h3>
+                    <p class="stat-number" id="totalTrips">--</p>
+                    <div class="stat-trend up">All assignments</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Completed Assignments</h3>
-                    <p class="stat-number" id="completed Assignments">28</p>
-                    <div class="stat-trend up">+5 this month</div>
+                    <h3>Completed Trips</h3>
+                    <p class="stat-number" id="completedTrips">--</p>
+                    <div class="stat-trend up">Successfully delivered</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Pending Assignments</h3>
-                    <p class="stat-number" id="pending Assignments">5</p>
-                    <div class="stat-trend">Awaiting pickup</div>
+                    <h3>Total Earnings</h3>
+                    <p class="stat-number" id="totalEarnings">--</p>
+                    <div class="stat-trend up">Lifetime earnings</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Earnings</h3>
-                    <p class="stat-number">45,000 ETB</p>
-                    <div class="stat-trend up">+15% this month</div>
+                    <h3>Rating</h3>
+                    <p class="stat-number" id="rating">--</p>
+                    <div class="stat-trend">Out of 5.0</div>
                 </div>
             </div>
 
             <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i data-feather="truck"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p>Shipment <strong>#SH-8932</strong> is in transit</p>
-                            <span class="activity-time">1 hour ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i data-feather="check-circle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>Delivery #DL-7821</strong> completed successfully</p>
-                            <span class="activity-time">4 hours ago</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i data-feather="package"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p><strong>New assignment</strong> received</p>
-                            <span class="activity-time">1 day ago</span>
-                        </div>
-                    </div>
+                <h3>Recent Deliveries</h3>
+                <div class="activity-list" id="recentDeliveries">
+                    <p style="color: #64748b; padding: 20px; text-align: center;">Loading deliveries...</p>
                 </div>
             </div>
 
@@ -92,6 +66,55 @@ require_once __DIR__ . '/../layout/header_transporter.php';
 </div>
 
 <script>
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/cargo-project/backend/api/transporter/get_transporter_stats.php');
+        const result = await response.json();
+
+        if (result.success) {
+            const data = result.data;
+            
+            // Update Stats
+            document.getElementById('totalTrips').innerText = data.totalTrips;
+            document.getElementById('completedTrips').innerText = data.completedTrips;
+            document.getElementById('totalEarnings').innerText = data.totalEarnings + ' ETB';
+            document.getElementById('rating').innerText = data.rating + ' ★';
+
+            // Update Recent Deliveries
+            const deliveriesList = document.getElementById('recentDeliveries');
+            deliveriesList.innerHTML = '';
+
+            if (data.recentDeliveries.length === 0) {
+                deliveriesList.innerHTML = '<p style="color: #64748b; padding: 20px; text-align: center;">No recent deliveries</p>';
+            } else {
+                data.recentDeliveries.forEach(item => {
+                    const statusClass = item.status === 'delivered' ? 'approved' : 
+                                        item.status === 'in-transit' ? 'pending' : 'pending';
+                    deliveriesList.innerHTML += `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i data-feather="package"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p><strong>Request #${item.id}</strong> - ${item.customer}</p>
+                                <small style="color: #64748b;">${item.pickup} → ${item.dropoff}</small>
+                                <div style="margin-top: 5px;">
+                                    <span class="badge ${statusClass}">${item.status}</span>
+                                    <span style="margin-left: 10px; color: #16a34a; font-weight: 600;">${item.earning} ETB</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                feather.replace();
+            }
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+loadDashboardStats();
 feather.replace();
 </script>
 

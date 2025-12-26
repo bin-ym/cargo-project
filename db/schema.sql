@@ -8,7 +8,10 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'manager', 'finance', 'transporter', 'customer') NOT NULL,
     must_change_password BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    is_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Transporters Profile
@@ -21,6 +24,7 @@ CREATE TABLE IF NOT EXISTS transporters (
     status ENUM('pending', 'approved', 'suspended') DEFAULT 'pending',
     license_copy VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -31,6 +35,7 @@ CREATE TABLE IF NOT EXISTS customers (
     address TEXT,
     city VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -40,9 +45,20 @@ CREATE TABLE IF NOT EXISTS cargo_requests (
     customer_id INT NOT NULL,
     pickup_location VARCHAR(255) NOT NULL,
     dropoff_location VARCHAR(255) NOT NULL,
+    pickup_lat DECIMAL(10, 8),
+    pickup_lng DECIMAL(11, 8),
+    dropoff_lat DECIMAL(10, 8),
+    dropoff_lng DECIMAL(11, 8),
+    distance_km DECIMAL(10, 2),
+    price DECIMAL(10, 2),
+    vehicle_type VARCHAR(50),
     pickup_date DATE NOT NULL,
     status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
+    payment_status ENUM('pending', 'paid', 'failed') DEFAULT 'pending',
+    tx_ref VARCHAR(100),
+    rejection_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -63,11 +79,39 @@ CREATE TABLE IF NOT EXISTS shipments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT NOT NULL,
     transporter_id INT,
+    vehicle_id INT,
     status ENUM('assigned', 'in-transit', 'delivered', 'cancelled') DEFAULT 'assigned',
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     delivered_at TIMESTAMP NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (request_id) REFERENCES cargo_requests(id) ON DELETE CASCADE,
     FOREIGN KEY (transporter_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Vehicles Table
+CREATE TABLE IF NOT EXISTS vehicles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plate_number VARCHAR(20) UNIQUE NOT NULL,
+    vehicle_type ENUM('pickup', 'isuzu', 'trailer') NOT NULL,
+    status ENUM('available', 'in-use', 'maintenance') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Ratings Table
+CREATE TABLE IF NOT EXISTS ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    transporter_id INT NOT NULL,
+    rating INT CHECK(rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE(request_id, customer_id),
+    FOREIGN KEY (request_id) REFERENCES cargo_requests(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (transporter_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Insert sample data for testing (only if tables are empty)
@@ -75,21 +119,26 @@ CREATE TABLE IF NOT EXISTS shipments (
 
 -- 1. Insert Users (if not exist)
 INSERT INTO users (username, email, phone, full_name, password, role)
-SELECT * FROM (SELECT 'amanuel', 'amanuel@debark.edu.et', '094011116', 'Amanuel Asmare', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2...', 'transporter') AS tmp
-WHERE NOT EXISTS (SELECT username FROM users WHERE username = 'amanuel') LIMIT 1;
+SELECT * FROM (SELECT 'admin', 'admin@cargo.com', '0911223344', 'System Admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin') AS tmp
+WHERE NOT EXISTS (SELECT username FROM users WHERE username = 'admin') LIMIT 1;
 
 INSERT INTO users (username, email, phone, full_name, password, role)
-SELECT * FROM (SELECT 'abiye', 'abiye@debark.edu.et', '091401083', 'Abiye Birhan', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2...', 'customer') AS tmp
+SELECT * FROM (SELECT 'amanuel', 'amanuel@debark.edu.et', '094011116', 'Amanuel Asmare', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'transporter') AS tmp
+WHERE NOT EXISTS (SELECT username FROM users WHERE username = 'amanuel') LIMIT 1;
+
+-- Insert Transporter Profile for Amanuel
+INSERT INTO transporters (user_id, status)
+SELECT id, 'approved' FROM users WHERE username = 'amanuel'
+AND NOT EXISTS (SELECT 1 FROM transporters WHERE user_id = users.id);
+
+INSERT INTO users (username, email, phone, full_name, password, role)
+SELECT * FROM (SELECT 'abiye', 'abiye@debark.edu.et', '091401083', 'Abiye Birhan', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer') AS tmp
 WHERE NOT EXISTS (SELECT username FROM users WHERE username = 'abiye') LIMIT 1;
 
--- 2. Insert Transporter Profile
-INSERT INTO transporters (user_id, vehicle_type, plate_number, capacity, status)
-SELECT id, 'Isuzu FSR', 'ABC-123', '3000kg', 'approved'
-FROM users WHERE username = 'amanuel'
-AND NOT EXISTS (SELECT user_id FROM transporters WHERE user_id = users.id);
-
--- 3. Insert Customer Profile
+-- Insert Customer Profile for Abiye
 INSERT INTO customers (user_id, address, city)
-SELECT id, 'Kebele 01', 'Debark'
-FROM users WHERE username = 'abiye'
-AND NOT EXISTS (SELECT user_id FROM customers WHERE user_id = users.id);
+SELECT id, 'Addis Ababa', 'Addis Ababa' FROM users WHERE username = 'abiye'
+AND NOT EXISTS (SELECT 1 FROM customers WHERE user_id = users.id);
+
+-- Add foreign key for vehicle_id in shipments if not exists (for existing databases)
+-- ALTER TABLE shipments ADD CONSTRAINT fk_shipment_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL;

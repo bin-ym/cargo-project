@@ -3,89 +3,208 @@
 
 require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../lib/Chapa/Chapa.php';
+require_once __DIR__ . '/../../lib/Chapa/Model/PostData.php';
+require_once __DIR__ . '/../../lib/Chapa/Model/ResponseData.php';
+require_once __DIR__ . '/../../lib/Chapa/Util.php';
 
-header('Content-Type: application/json; charset=utf-8');
+use Chapa\Chapa;
+use Chapa\Model\PostData;
+use Chapa\Util;
 
-// Check if user is logged in and is a customer
+header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+/* ---------------- SECURITY ---------------- */
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit();
 }
 
-// Get POST data
-$data = json_decode(file_get_contents('php://input'), true);
+/* ---------------- PRICE CALCULATION ---------------- */
+function calculatePrice(float $distance, float $weight, int $quantity, string $vehicleType): float {
+    $baseRate = 150; 
+    
+    $vehicleRates = [
+        'pickup' => 1.0,
+        'isuzu' => 1.5,
+        'trailer' => 2.5
+    ];
 
-if (!$data) {
-    echo json_encode(['success' => false, 'error' => 'Invalid input']);
-    exit();
-}
-
-$pickup_location = $data['pickup_location'] ?? '';
-$dropoff_location = $data['dropoff_location'] ?? '';
-$pickup_date = $data['pickup_date'] ?? '';
-$items = $data['items'] ?? []; // Array of items
-
-// Basic Validation
-if (empty($pickup_location) || empty($dropoff_location) || empty($pickup_date)) {
-    echo json_encode(['success' => false, 'error' => 'Please fill in all required fields']);
-    exit();
-}
-
-// Validate Date (Must be today or future)
-$today = date('Y-m-d');
-if ($pickup_date < $today) {
-    echo json_encode(['success' => false, 'error' => 'Pickup date cannot be in the past']);
-    exit();
-}
-
-if (empty($items) || !is_array($items)) {
-    echo json_encode(['success' => false, 'error' => 'At least one item is required']);
-    exit();
+    $vehicleFactor = $vehicleRates[$vehicleType] ?? 1.0;
+    $scalingFactor = 0.2; 
+    
+    $variableCost = ($distance * $weight * $quantity * $vehicleFactor * $scalingFactor);
+    
+    return $baseRate + $variableCost;
 }
 
 try {
-    $pdo = Database::getConnection();
-    $pdo->beginTransaction();
+    /* ---------------- INPUT ---------------- */
+    $raw = file_get_contents('php://input');
+    if (!$raw) throw new Exception("No input received");
 
-    // 1. Insert Request
-    $stmt = $pdo->prepare("
-        INSERT INTO cargo_requests (customer_id, pickup_location, dropoff_location, pickup_date, status)
-        VALUES (?, ?, ?, ?, 'pending')
+    $data = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception("Invalid JSON payload");
+    }
+
+    if (
+        empty($data['pickup_location']) ||
+        empty($data['dropoff_location']) ||
+        empty($data['pickup_date']) ||
+        empty($data['items'][0])
+    ) {
+        throw new Exception("Missing required fields");
+    }
+
+    /* ---------------- ITEM VALIDATION ---------------- */
+    $item = $data['items'][0];
+
+    $distance = isset($data['distance_km']) ? (float)$data['distance_km'] : 0;
+    $weight   = isset($item['weight']) ? (float)$item['weight'] : 0;
+    $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+    $vehicleType = isset($data['vehicle_type']) ? $data['vehicle_type'] : 'pickup';
+
+    if ($distance <= 0 || $weight <= 0 || $quantity <= 0) {
+        throw new Exception("Invalid distance, weight, or quantity");
+    }
+
+    /* ---------------- PRICE (BACKEND TRUTH) ---------------- */
+    $price = calculatePrice($distance, $weight, $quantity, $vehicleType);
+
+    if (!is_numeric($price) || $price <= 0) {
+        throw new Exception("Invalid calculated price");
+    }
+
+    $finalPrice = number_format((float)$price, 2, '.', '');
+
+    /* ---------------- DATABASE ---------------- */
+    $db = Database::getConnection();
+    $db->beginTransaction();
+
+    $txRef = Util::generateToken('TX');
+
+    /* ---------------- CREATE REQUEST ---------------- */
+    $stmt = $db->prepare("
+        INSERT INTO cargo_requests (
+            customer_id,
+            pickup_location,
+            dropoff_location,
+            pickup_lat,
+            pickup_lng,
+            dropoff_lat,
+            dropoff_lng,
+            distance_km,
+            price,
+            payment_status,
+            pickup_date,
+            status,
+            tx_ref,
+            vehicle_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, 'pending', ?, ?)
     ");
+
     $stmt->execute([
         $_SESSION['user_id'],
-        $pickup_location,
-        $dropoff_location,
-        $pickup_date
+        $data['pickup_location'],
+        $data['dropoff_location'],
+        $data['pickup_lat'] ?? null,
+        $data['pickup_lng'] ?? null,
+        $data['dropoff_lat'] ?? null,
+        $data['dropoff_lng'] ?? null,
+        $distance,
+        $finalPrice,
+        $data['pickup_date'],
+        $txRef,
+        $vehicleType
     ]);
-    $request_id = $pdo->lastInsertId();
 
-    // 2. Insert Items
-    $stmtItem = $pdo->prepare("
-        INSERT INTO cargo_items (request_id, item_name, quantity, weight, category, description)
+    $requestId = $db->lastInsertId();
+
+    /* ---------------- ITEMS ---------------- */
+    $stmtItem = $db->prepare("
+        INSERT INTO cargo_items
+        (request_id, item_name, quantity, weight, category, description)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
 
-    foreach ($items as $item) {
+    foreach ($data['items'] as $it) {
         $stmtItem->execute([
-            $request_id,
-            $item['item_name'],
-            $item['quantity'] ?? 1,
-            $item['weight'] ?? '',
-            $item['category'] ?? 'Other',
-            $item['description'] ?? ''
+            $requestId,
+            $it['item_name'],
+            $it['quantity'],
+            $it['weight'],
+            $it['category'],
+            $it['description']
         ]);
     }
 
-    $pdo->commit();
+    $db->commit();
 
-    echo json_encode(['success' => true, 'message' => 'Request submitted successfully']);
+    /* ---------------- USER INFO ---------------- */
+    $u = $db->prepare("SELECT email, full_name FROM users WHERE id = ?");
+    $u->execute([$_SESSION['user_id']]);
+    $user = $u->fetch();
 
-} catch (Exception $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
+    if (!$user) {
+        throw new Exception("User not found in database");
     }
-    error_log("Create Request Error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+
+    $email    = $user['email'];
+    $fullName = $user['full_name'];
+
+    $_SESSION['email'] = $email;
+    $_SESSION['full_name'] = $fullName;
+
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception("Invalid email address in database. Please update your profile.");
+    }
+
+    $parts = explode(' ', $fullName);
+    $firstName = $parts[0] ?? 'Customer';
+    $lastName  = implode(' ', array_slice($parts, 1)) ?: '';
+
+    /* ---------------- CHAPA ---------------- */
+    $chapa = new Chapa($_ENV['CHAPA_SECRET_KEY']);
+
+    $postData = new PostData();
+    $postData->amount($finalPrice)
+        ->currency('ETB')
+        ->email($email)
+        ->firstname($firstName)
+        ->lastname($lastName)
+        ->transactionRef($txRef)
+        ->callbackUrl('http://localhost/cargo-project/backend/api/payment/callback.php')
+        ->returnUrl("http://localhost/cargo-project/frontend/customer/dashboard.php?tx_ref=$txRef")
+        ->customizations([
+            'title' => 'Cargo Request Payment',
+            'description' => 'Cargo Request #' . $requestId
+        ]);
+
+    $response = $chapa->initialize($postData);
+
+    if ($response->getStatus() !== 'success') {
+        throw new Exception("Chapa init failed: " . json_encode($response->getMessage()));
+    }
+
+    echo json_encode([
+        'success' => true,
+        'request_id' => $requestId,
+        'price' => $finalPrice,
+        'payment_url' => $response->getData()['checkout_url']
+    ]);
+
+} catch (Throwable $e) {
+    if (isset($db) && $db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }

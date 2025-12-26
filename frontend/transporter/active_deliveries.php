@@ -22,28 +22,18 @@ require_once __DIR__ . '/../layout/header_transporter.php';
                 <table class="table-modern">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
+                            <th>Request ID</th>
                             <th>Customer</th>
                             <th>Route</th>
-                            <th>Progress</th>
+                            <th>Pickup Date</th>
                             <th>Status</th>
                             <th class="row-action">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                         <tr>
-                            <td>#95</td>
-                            <td>John Doe</td>
-                            <td>Addis Ababa → Bahir Dar</td>
-                            <td>
-                                <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                    <div style="background: #ea580c; height: 100%; width: 65%;"></div>
-                                </div>
-                                <small style="color: #64748b;">65% Complete</small>
-                            </td>
-                            <td><span class="badge in-transit">In Transit</span></td>
-                            <td class="row-action">
-                                <button class="btn-small btn-view">Update Status</button>
+                            <td colspan="6" style="text-align:center; padding: 20px; color: #64748b;">
+                                Loading active deliveries...
                             </td>
                         </tr>
                     </tbody>
@@ -52,5 +42,79 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         </div>
     </main>
 </div>
+
+<script>
+const API_URL = '/cargo-project/backend/api/transporter/get_assignments.php';
+
+async function fetchActiveDeliveries() {
+    try {
+        const response = await fetch(API_URL);
+        const result = await response.json();
+        
+        if (result.success) {
+            // Filter only in-transit deliveries
+            const activeDeliveries = result.data.filter(r => r.shipment_status === 'in-transit');
+            renderTable(activeDeliveries);
+        } else {
+            showError('Failed to load deliveries');
+        }
+    } catch (error) {
+        console.error('Error fetching deliveries:', error);
+        showError('Error loading deliveries');
+    }
+}
+
+function renderTable(data) {
+    const body = document.getElementById("tableBody");
+    body.innerHTML = "";
+
+    if (data.length === 0) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; padding: 40px;">
+                    <div style="color: #64748b;">
+                        <i data-feather="package" style="width: 48px; height: 48px; margin-bottom: 10px;"></i>
+                        <p style="font-size: 16px; margin: 0;">No active deliveries</p>
+                        <p style="font-size: 14px; margin-top: 5px;">All in-transit deliveries will appear here</p>
+                    </div>
+                </td>
+            </tr>`;
+        feather.replace();
+        return;
+    }
+
+    data.forEach(row => {
+        const requestIdFormatted = `#CT-${String(row.id).padStart(4, '0')}`;
+        const route = `${row.pickup_location} → ${row.dropoff_location}`;
+        
+        body.innerHTML += `
+        <tr>
+            <td><strong>${requestIdFormatted}</strong></td>
+            <td>${row.customer_name}</td>
+            <td>${route}</td>
+            <td>${row.pickup_date}</td>
+            <td><span class="badge pending" style="background:#dbeafe; color:#1e40af;">In Transit</span></td>
+            <td class="row-action">
+                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view">View Details</a>
+            </td>
+        </tr>`;
+    });
+    
+    feather.replace();
+}
+
+function showError(message) {
+    const body = document.getElementById("tableBody");
+    body.innerHTML = `
+        <tr>
+            <td colspan="6" style="text-align:center; padding: 20px; color: #ef4444;">
+                ${message}
+            </td>
+        </tr>`;
+}
+
+fetchActiveDeliveries();
+feather.replace();
+</script>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

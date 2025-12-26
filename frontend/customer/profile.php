@@ -19,27 +19,39 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
         <div class="content">
             <div class="recent-activity" style="max-width: 600px;">
+<?php
+require_once __DIR__ . '/../../backend/config/database.php';
+$db = Database::getConnection();
+$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+// Fetch customer specific data
+$stmtCust = $db->prepare("SELECT * FROM customers WHERE user_id = ?");
+$stmtCust->execute([$_SESSION['user_id']]);
+$customer = $stmtCust->fetch();
+?>
                 <h3>Personal Information</h3>
-                <form style="margin-top: 20px;">
+                <form style="margin-top: 20px;" method="POST" action="/cargo-project/backend/api/customer/update_profile.php">
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Full Name</label>
-                        <input type="text" value="<?= htmlspecialchars($_SESSION['full_name'] ?? '') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Email</label>
-                        <input type="email" value="<?= htmlspecialchars($_SESSION['email'] ?? '') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <input type="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" readonly style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f1f5f9; cursor: not-allowed;">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Phone</label>
-                        <input type="tel" value="<?= htmlspecialchars($_SESSION['phone'] ?? '') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Address</label>
-                        <input type="text" placeholder="Enter your address" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" name="address" value="<?= htmlspecialchars($customer['address'] ?? '') ?>" placeholder="Enter your address" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">City</label>
-                        <input type="text" placeholder="Enter your city" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <input type="text" name="city" value="<?= htmlspecialchars($customer['city'] ?? '') ?>" placeholder="Enter your city" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                     </div>
                     <button type="submit" class="btn btn-primary">Update Profile</button>
                 </form>

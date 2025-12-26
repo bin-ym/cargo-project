@@ -90,16 +90,15 @@ function renderTable() {
     paginated.forEach(row => {
         body.innerHTML += `
         <tr>
-            <td>#${row.id}</td>
+            <td>#CT-${String(row.id).padStart(4, '0')}</td>
             <td>${row.customer_name}<br><small style="color:#64748b">${row.phone}</small></td>
             <td>${row.pickup_location}</td>
             <td>${row.dropoff_location}</td>
             <td>${row.pickup_date}</td>
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
-                <a href="order_items.php?id=${row.id}" class="btn-small btn-view" style="margin-right:5px;">View</a>
-                <button onclick="updateStatus(${row.id}, 'approved')" class="btn-small" style="background:#dcfce7; color:#166534; border:1px solid #bbf7d0; margin-right:5px;">Approve</button>
-                <button onclick="updateStatus(${row.id}, 'rejected')" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;">Reject</button>
+            <td class="row-action">
+                <a href="order_items.php?id=${row.id}" class="btn-small btn-view">View Details</a>
             </td>
         </tr>`;
     });

@@ -38,7 +38,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
                             <th>Company/Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Vehicle</th>
                             <th>Status</th>
                             <th class="row-action">Action</th>
                         </tr>
@@ -80,21 +79,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
             <div class="form-group">
                 <label>Phone</label>
                 <input type="text" id="phone" required>
-            </div>
-
-            <div class="form-group">
-                <label>Vehicle Type</label>
-                <input type="text" id="vehicle_type" required>
-            </div>
-
-            <div class="form-group">
-                <label>Plate Number</label>
-                <input type="text" id="plate_number" required>
-            </div>
-
-            <div class="form-group">
-                <label>Capacity</label>
-                <input type="text" id="capacity" required>
             </div>
 
             <div class="form-group">
@@ -260,7 +244,7 @@ function renderTable() {
     body.innerHTML = "";
 
     if (filteredData.length === 0) {
-        body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No transporters found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">No transporters found</td></tr>`;
         document.getElementById("pageInfo").textContent = "Page 0 of 0";
         return;
     }
@@ -276,7 +260,6 @@ function renderTable() {
             <td>${row.name}</td>
             <td>${row.email}</td>
             <td>${row.phone}</td>
-            <td>${row.vehicle_type || row.vehicle || '-'}</td>
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
                 <button onclick="editTransporter(${row.id})" class="btn-small btn-view" style="margin-right:5px;">Edit</button>
@@ -312,9 +295,6 @@ function editTransporter(id) {
         document.getElementById("name").value = item.name;
         document.getElementById("email").value = item.email;
         document.getElementById("phone").value = item.phone;
-        document.getElementById("vehicle_type").value = item.vehicle_type;
-        document.getElementById("plate_number").value = item.plate_number;
-        document.getElementById("capacity").value = item.capacity;
         document.getElementById("status").value = item.status;
         modal.style.display = "flex";
     }
@@ -344,9 +324,6 @@ form.addEventListener("submit", async (e) => {
         name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         phone: document.getElementById("phone").value,
-        vehicle_type: document.getElementById("vehicle_type").value,
-        plate_number: document.getElementById("plate_number").value,
-        capacity: document.getElementById("capacity").value,
         status: document.getElementById("status").value,
     };
 
@@ -383,8 +360,7 @@ document.getElementById("searchInput").addEventListener("input", () => {
     filteredData = data.filter(d =>
         d.name.toLowerCase().includes(keyword) ||
         d.email.toLowerCase().includes(keyword) ||
-        d.phone.includes(keyword) ||
-        (d.vehicle_type && d.vehicle_type.toLowerCase().includes(keyword))
+        d.phone.includes(keyword)
     );
     currentPage = 1;
     renderTable();
@@ -414,9 +390,9 @@ document.getElementById("nextPage").onclick = () => {
 
 // CSV export
 document.getElementById("exportCSV").onclick = () => {
-    let csv = "ID,Name,Email,Phone,Vehicle,Status\n";
+    let csv = "ID,Name,Email,Phone,Status\n";
     filteredData.forEach(r => {
-        csv += `${r.id},${r.name},${r.email},${r.phone},${r.vehicle_type || ''},${r.status}\n`;
+        csv += `${r.id},${r.name},${r.email},${r.phone},${r.status}\n`;
     });
 
     let a = document.createElement("a");

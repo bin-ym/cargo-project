@@ -35,7 +35,7 @@ try {
     $pdo = Database::getConnection();
 
     $stmt = $pdo->prepare("
-        SELECT id, username, email, password, role, full_name, must_change_password 
+        SELECT id, username, email, password, role, full_name, must_change_password, is_verified 
         FROM users 
         WHERE username = ? OR email = ?
     ");
@@ -44,6 +44,11 @@ try {
 
     if (!$user || !password_verify($password, $user['password'])) {
         echo json_encode(["success" => false, "error" => "Invalid username or password"]);
+        exit();
+    }
+
+    if (!$user['is_verified']) {
+        echo json_encode(["success" => false, "error" => "Please verify your email address before logging in."]);
         exit();
     }
 

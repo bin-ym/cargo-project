@@ -8,5 +8,5 @@ session_unset();
 session_destroy();
 
 // Redirect to login page
-header("Location: /cargo-project/frontend/auth/login.php");
+header("Location: /cargo-project/");
 exit();

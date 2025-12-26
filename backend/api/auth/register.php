@@ -50,14 +50,35 @@ try {
     }
 
     $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $token = bin2hex(random_bytes(32)); // Generate verification token
 
     $insert = $pdo->prepare("
-        INSERT INTO users (full_name, email, phone, username, password, role)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (full_name, email, phone, username, password, role, is_verified, verification_token)
+        VALUES (?, ?, ?, ?, ?, ?, 0, ?)
     ");
-    $insert->execute([$name, $email, $phone, $username, $hashed, $role]);
+    $insert->execute([$name, $email, $phone, $username, $hashed, $role, $token]);
+    $userId = $pdo->lastInsertId();
 
-    echo json_encode(["success" => true, "message" => "Registration successful"]);
+    // Create Profile based on Role
+    if ($role === 'customer') {
+        $stmtProfile = $pdo->prepare("INSERT INTO customers (user_id) VALUES (?)");
+        $stmtProfile->execute([$userId]);
+    } elseif ($role === 'transporter') {
+        $stmtProfile = $pdo->prepare("INSERT INTO transporters (user_id, status) VALUES (?, 'pending')");
+        $stmtProfile->execute([$userId]);
+    }
+
+    // Send Verification Email
+    $verifyLink = "http://localhost/cargo-project/backend/api/auth/verify_email.php?token=$token";
+    $subject = "Verify Your Email - Cargo Transport System";
+    $message = "Hi $name,\n\nPlease click the link below to verify your email address:\n$verifyLink\n\nIf you did not sign up, please ignore this email.";
+    $headers = "From: no-reply@cargo-project.com";
+
+    // Note: mail() requires a configured SMTP server (e.g., Mercury/Sendmail in XAMPP)
+    // For production, use PHPMailer.
+    @mail($email, $subject, $message, $headers);
+
+    echo json_encode(["success" => true, "message" => "Registration successful! Please check your email to verify your account."]);
 
 } catch (Exception $e) {
     error_log("Registration Error: " . $e->getMessage());

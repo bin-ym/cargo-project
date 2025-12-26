@@ -63,7 +63,13 @@ class TransporterController {
 
             // 2. Create Transporter Profile
             $stmt = $this->db->prepare("INSERT INTO transporters (user_id, vehicle_type, plate_number, capacity, status) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$userId, $data['vehicle_type'], $data['plate_number'], $data['capacity'], $data['status'] ?? 'pending']);
+            $stmt->execute([
+                $userId, 
+                $data['vehicle_type'] ?? null, 
+                $data['plate_number'] ?? null, 
+                $data['capacity'] ?? null, 
+                $data['status'] ?? 'pending'
+            ]);
 
             $this->db->commit();
             // error_log("Created user with password: " . $rawPassword); 
@@ -89,7 +95,13 @@ class TransporterController {
 
             // 2. Update Transporter Profile
             $stmt = $this->db->prepare("UPDATE transporters SET vehicle_type = ?, plate_number = ?, capacity = ?, status = ? WHERE id = ?");
-            $stmt->execute([$data['vehicle_type'], $data['plate_number'], $data['capacity'], $data['status'], $id]);
+            $stmt->execute([
+                $data['vehicle_type'] ?? $transporter['vehicle_type'], 
+                $data['plate_number'] ?? $transporter['plate_number'], 
+                $data['capacity'] ?? $transporter['capacity'], 
+                $data['status'], 
+                $id
+            ]);
 
             $this->db->commit();
             return true;
