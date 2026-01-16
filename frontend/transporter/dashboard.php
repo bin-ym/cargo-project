@@ -16,7 +16,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         <header class="topbar">
             <h2>Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Transporter'); ?> 👋</h2>
             <div class="user-info">
-                <span><?= ucfirst($_SESSION['role']) ?></span>
+                <span><?= ucfirst($_SESSION['username']) ?></span>
             </div>
         </header>
 
@@ -47,7 +47,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
             <div class="recent-activity">
                 <h3>Recent Deliveries</h3>
                 <div class="activity-list" id="recentDeliveries">
-                    <p style="color: #64748b; padding: 20px; text-align: center;">Loading deliveries...</p>
+                    <p class="text-center p-20 text-muted">Loading deliveries...</p>
                 </div>
             </div>
 
@@ -64,6 +64,19 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         </div>
     </main>
 </div>
+
+
+<?php
+require_once __DIR__ . '/../../backend/config/session.php';
+
+// Transporter only
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'transporter') {
+    header("Location: /cargo-project/frontend/auth/login.php");
+    exit();
+}
+
+require_once __DIR__ . '/../layout/header_transporter.php';
+?>
 
 <script>
 async function loadDashboardStats() {
@@ -85,7 +98,7 @@ async function loadDashboardStats() {
             deliveriesList.innerHTML = '';
 
             if (data.recentDeliveries.length === 0) {
-                deliveriesList.innerHTML = '<p style="color: #64748b; padding: 20px; text-align: center;">No recent deliveries</p>';
+                deliveriesList.innerHTML = '<p class="text-center p-20 text-muted">No recent deliveries</p>';
             } else {
                 data.recentDeliveries.forEach(item => {
                     const statusClass = item.status === 'delivered' ? 'approved' : 
@@ -97,7 +110,7 @@ async function loadDashboardStats() {
                             </div>
                             <div class="activity-content">
                                 <p><strong>Request #${item.id}</strong> - ${item.customer}</p>
-                                <small style="color: #64748b;">${item.pickup} → ${item.dropoff}</small>
+                                <small class="text-muted">${item.pickup} → ${item.dropoff}</small>
                                 <div style="margin-top: 5px;">
                                     <span class="badge ${statusClass}">${item.status}</span>
                                     <span style="margin-left: 10px; color: #16a34a; font-weight: 600;">${item.earning} ETB</span>
@@ -117,5 +130,6 @@ async function loadDashboardStats() {
 loadDashboardStats();
 feather.replace();
 </script>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+        <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+    </main>
+</div>

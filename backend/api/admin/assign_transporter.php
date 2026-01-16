@@ -46,6 +46,19 @@ try {
     // 3. Update vehicle status to in-use
     $stmt = $db->prepare("UPDATE vehicles SET status = 'in-use' WHERE id = ?");
     $stmt->execute([$vehicleId]);
+
+    // 4. Create Notification for Customer
+    // Get customer_id from request (we need to fetch it first)
+    $reqStmt = $db->prepare("SELECT customer_id FROM cargo_requests WHERE id = ?");
+    $reqStmt->execute([$requestId]);
+    $request = $reqStmt->fetch();
+
+    if ($request) {
+        $notifTitle = "Transporter Assigned";
+        $notifMsg = "Your request #{$requestId} has been assigned to a transporter. It is now ready for pickup.";
+        $stmtNotif = $db->prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, 'success')");
+        $stmtNotif->execute([$request['customer_id'], $notifTitle, $notifMsg]);
+    }
     
     $db->commit();
     

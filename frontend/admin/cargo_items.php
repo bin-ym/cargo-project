@@ -5,8 +5,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
         <header class="topbar">
             <h2>All Cargo Items</h2>
@@ -40,6 +38,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
                 <span id="pageInfo"></span>
                 <button class="page-btn" id="nextPage">Next</button>
             </div>
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -230,4 +229,4 @@ fetchItems();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+

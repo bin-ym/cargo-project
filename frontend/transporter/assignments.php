@@ -31,26 +31,34 @@ require_once __DIR__ . '/../layout/header_transporter.php';
                             <th class="row-action">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody"></tbody>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="7" class="text-center p-20 text-muted">Loading assignments...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
+        <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
     </main>
 </div>
 
 <script>
+const API_URL = '/cargo-project/backend/api/transporter/get_assignments.php';
+
 async function fetchAssignments() {
     try {
-        const response = await fetch('/cargo-project/backend/api/transporter/get_assignments.php');
+        const response = await fetch(API_URL);
         const result = await response.json();
         
         if (result.success) {
             renderTable(result.data);
         } else {
-            console.error(result.error);
+            showError('Failed to load assignments');
         }
     } catch (error) {
         console.error('Error fetching assignments:', error);
+        showError('Error loading assignments');
     }
 }
 
@@ -59,34 +67,53 @@ function renderTable(data) {
     body.innerHTML = "";
 
     if (data.length === 0) {
-        body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No assignments found</td></tr>`;
+        body.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <div class="text-muted">
+                        <i data-feather="truck" class="empty-state-icon"></i>
+                        <p class="empty-state-title">No assignments found</p>
+                        <p class="empty-state-subtitle">New delivery requests will appear here</p>
+                    </div>
+                </td>
+            </tr>`;
+        feather.replace();
         return;
     }
 
     data.forEach(row => {
-        let status = row.shipment_status || 'assigned';
-        let badgeClass = status === 'delivered' ? 'approved' : (status === 'in-transit' ? 'in-transit' : 'pending');
+        const requestIdFormatted = `#CT-${String(row.id).padStart(4, '0')}`;
+        const route = `${row.pickup_location} → ${row.dropoff_location}`;
+        const statusClass = row.shipment_status === 'delivered' ? 'approved' : 
+                          (row.shipment_status === 'in-transit' ? 'pending' : 'pending');
         
         body.innerHTML += `
         <tr>
-            <td>#CT-${String(row.id).padStart(4, '0')}</td>
-            <td>${row.customer_name}<br><small style="color:#64748b">${row.phone}</small></td>
+            <td><strong>${requestIdFormatted}</strong></td>
+            <td>${row.customer_name}</td>
             <td>${row.pickup_location}</td>
             <td>${row.dropoff_location}</td>
             <td>${row.pickup_date}</td>
-            <td><span class="badge ${badgeClass}">${status.replace('-', ' ')}</span></td>
+            <td><span class="badge ${statusClass}">${row.shipment_status}</span></td>
             <td class="row-action">
                 <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view">View Details</a>
             </td>
         </tr>`;
     });
+    
+    feather.replace();
+}
+
+function showError(message) {
+    const body = document.getElementById("tableBody");
+    body.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center p-20 text-danger">
+                ${message}
+            </td>
+        </tr>`;
 }
 
 fetchAssignments();
 feather.replace();
 </script>
-        </div>
-    </main>
-</div>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>

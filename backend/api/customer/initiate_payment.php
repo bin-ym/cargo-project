@@ -64,8 +64,10 @@ try {
     }
 
     $parts = explode(' ', $fullName);
-    $firstName = $parts[0];
-    $lastName = implode(' ', array_slice($parts, 1));
+    $firstName = $parts[0] ?? 'Customer';
+    $lastName = implode(' ', array_slice($parts, 1)) ?: 'User';
+
+    $finalPrice = number_format((float)$request['price'], 2, '.', '');
 
     // Generate new TX Ref for this attempt
     $txRef = Util::generateToken('TX');
@@ -83,7 +85,7 @@ try {
     $chapa = new Chapa($_ENV['CHAPA_SECRET_KEY']);
     
     $postData = new PostData();
-    $postData->amount($request['price'])
+    $postData->amount($finalPrice)
         ->currency('ETB')
         ->email($email)
         ->firstname($firstName)

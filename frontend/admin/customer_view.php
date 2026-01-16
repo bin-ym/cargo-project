@@ -1,11 +1,11 @@
 <?php 
+session_start();
+require_once __DIR__ . '/../../backend/config/session.php';
 require_once __DIR__ . '/../layout/header_admin.php';
 $customerId = $_GET['id'] ?? 1;
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
 
         <header class="topbar"><h2>Customer Details</h2></header>
@@ -48,10 +48,9 @@ $customerId = $_GET['id'] ?? 1;
                     </tbody>
                 </table>
             </div>
-
+            
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
 
     </main>
 </div>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>

@@ -1,0 +1,296 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #0f172a;
+  --accent: #f59e0b;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  color: #334155;
+  line-height: 1.6;
+  background: #ffffff;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ================= HERO ================= */
+.hero {
+  padding: 160px 5% 100px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  color: var(--secondary);
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: #64748b;
+  margin-bottom: 40px;
+}
+
+.hero-image {
+  flex: 1;
+}
+
+.hero-image img {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ================= FEATURES ================= */
+.features {
+  padding: 10px 5%;
+  background: #ffffff;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  color: var(--secondary);
+  margin-bottom: 15px;
+}
+
+.section-header p {
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+}
+
+.feature-card {
+  padding: 30px;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.icon-box {
+  width: 50px;
+  height: 50px;
+  background: #dbeafe;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+/* ================= PAGE HEADER ================= */
+.page-header {
+  padding: 120px 5% 60px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 3rem;
+  color: var(--secondary);
+  margin-bottom: 15px;
+}
+
+.page-header p {
+  font-size: 1.2rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ================= CONTENT ================= */
+.content-section {
+  padding: 80px 5%;
+}
+
+.content-section .container {
+  display: grid;
+  gap: 60px;
+}
+
+/* Contact grid (desktop) */
+.contact-grid {
+  grid-template-columns: 1fr 1.5fr;
+}
+
+/* ================= CONTACT INFO ================= */
+.contact-info {
+  background: var(--primary);
+  color: white;
+  padding: 40px;
+  border-radius: 20px 0 0 20px;
+}
+
+.contact-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.contact-info div {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* ================= CONTACT FORM ================= */
+.contact-form {
+  background: #f8fafc;
+  padding: 40px;
+  border-radius: 0 20px 20px 0;
+}
+
+.contact-form h3 {
+  font-size: 1.5rem;
+  color: var(--secondary);
+  margin-bottom: 25px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--primary);
+}
+
+/* ================= BUTTONS ================= */
+.btn,
+.btn-primary,
+.btn-outline {
+  display: inline-block;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-outline {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding-top: 120px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .content-section .container,
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-info {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .contact-form {
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+/* Refactoring Additions */
+.hero-small {
+  min-height: 55vh;
+}
+
+.vision-section {
+  max-width: 800px;
+  text-align: center;
+}
+
+.vision-section h2 {
+  font-size: 2.2rem;
+  color: var(--secondary);
+  margin-bottom: 20px;
+}
+
+.vision-section p {
+  font-size: 1.1rem;
+  color: #64748b;
+}

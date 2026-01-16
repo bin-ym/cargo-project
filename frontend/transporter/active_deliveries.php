@@ -32,7 +32,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="6" style="text-align:center; padding: 20px; color: #64748b;">
+            <td colspan="6" class="text-center p-20 text-muted">
                                 Loading active deliveries...
                             </td>
                         </tr>
@@ -71,11 +71,11 @@ function renderTable(data) {
     if (data.length === 0) {
         body.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align:center; padding: 40px;">
-                    <div style="color: #64748b;">
-                        <i data-feather="package" style="width: 48px; height: 48px; margin-bottom: 10px;"></i>
-                        <p style="font-size: 16px; margin: 0;">No active deliveries</p>
-                        <p style="font-size: 14px; margin-top: 5px;">All in-transit deliveries will appear here</p>
+                <td colspan="6" class="empty-state">
+                    <div class="text-muted">
+                        <i data-feather="package" class="empty-state-icon"></i>
+                        <p class="empty-state-title">No active deliveries</p>
+                        <p class="empty-state-subtitle">All in-transit deliveries will appear here</p>
                     </div>
                 </td>
             </tr>`;
@@ -93,7 +93,7 @@ function renderTable(data) {
             <td>${row.customer_name}</td>
             <td>${route}</td>
             <td>${row.pickup_date}</td>
-            <td><span class="badge pending" style="background:#dbeafe; color:#1e40af;">In Transit</span></td>
+            <td><span class="badge pending">In Transit</span></td>
             <td class="row-action">
                 <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view">View Details</a>
             </td>
@@ -107,7 +107,7 @@ function showError(message) {
     const body = document.getElementById("tableBody");
     body.innerHTML = `
         <tr>
-            <td colspan="6" style="text-align:center; padding: 20px; color: #ef4444;">
+            <td colspan="6" class="text-center p-20 text-danger">
                 ${message}
             </td>
         </tr>`;
@@ -117,4 +117,4 @@ fetchActiveDeliveries();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

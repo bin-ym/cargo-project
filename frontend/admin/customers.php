@@ -5,8 +5,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
         <header class="topbar">
             <h2>Customers</h2>
@@ -393,4 +391,4 @@ fetchCustomers();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

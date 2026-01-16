@@ -40,7 +40,7 @@ $requests = $controller->getByTransporterId($_SESSION['user_id']);
                     <tbody>
                         <?php if (empty($requests)): ?>
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
+                                <td colspan="7" class="text-center p-40 text-muted">
                                     No delivery history found
                                 </td>
                             </tr>
@@ -71,6 +71,7 @@ $requests = $controller->getByTransporterId($_SESSION['user_id']);
                     </tbody>
                 </table>
             </div>
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -78,5 +79,3 @@ $requests = $controller->getByTransporterId($_SESSION['user_id']);
 <script>
 feather.replace();
 </script>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>

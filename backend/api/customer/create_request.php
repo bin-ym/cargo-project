@@ -87,6 +87,18 @@ try {
 
     $txRef = Util::generateToken('TX');
 
+    /* ---------------- GET CUSTOMER ID ---------------- */
+    $stmtCust = $db->prepare("SELECT id FROM customers WHERE user_id = ?");
+    $stmtCust->execute([$_SESSION['user_id']]);
+    $custId = $stmtCust->fetchColumn();
+
+    if (!$custId) {
+        // Auto-create customer record if missing (robustness)
+        $stmtCreate = $db->prepare("INSERT INTO customers (user_id, address, city) VALUES (?, '', '')");
+        $stmtCreate->execute([$_SESSION['user_id']]);
+        $custId = $db->lastInsertId();
+    }
+
     /* ---------------- CREATE REQUEST ---------------- */
     $stmt = $db->prepare("
         INSERT INTO cargo_requests (
@@ -108,7 +120,7 @@ try {
     ");
 
     $stmt->execute([
-        $_SESSION['user_id'],
+        $custId,
         $data['pickup_location'],
         $data['dropoff_location'],
         $data['pickup_lat'] ?? null,
@@ -165,7 +177,7 @@ try {
 
     $parts = explode(' ', $fullName);
     $firstName = $parts[0] ?? 'Customer';
-    $lastName  = implode(' ', array_slice($parts, 1)) ?: '';
+    $lastName  = implode(' ', array_slice($parts, 1)) ?: 'User';
 
     /* ---------------- CHAPA ---------------- */
     $chapa = new Chapa($_ENV['CHAPA_SECRET_KEY']);
@@ -184,10 +196,36 @@ try {
             'description' => 'Cargo Request #' . $requestId
         ]);
 
+    // Debug Logging
+    $logFile = __DIR__ . '/debug_payment.txt';
+    $debugData = [
+        'timestamp' => date('Y-m-d H:i:s'),
+        'tx_ref' => $txRef,
+        'amount' => $finalPrice,
+        'email' => $email,
+        'callback_url' => 'http://localhost/cargo-project/backend/api/payment/callback.php',
+        'return_url' => "http://localhost/cargo-project/frontend/customer/dashboard.php?tx_ref=$txRef"
+    ];
+    file_put_contents($logFile, "INIT PAYLOAD: " . json_encode($debugData) . "\n", FILE_APPEND);
+
     $response = $chapa->initialize($postData);
 
     if ($response->getStatus() !== 'success') {
-        throw new Exception("Chapa init failed: " . json_encode($response->getMessage()));
+        $msg = $response->getMessage();
+        $errorDetail = '';
+        
+        // Check if message is an array (validation errors)
+        if (is_array($msg)) {
+            // Check for specific email error
+            if (isset($msg['email'])) {
+                throw new Exception("Payment provider rejected your email address. Please update your profile with a valid email.");
+            }
+            $errorDetail = json_encode($msg);
+        } else {
+            $errorDetail = (string)$msg;
+        }
+        
+        throw new Exception("Chapa init failed: " . $errorDetail);
     }
 
     echo json_encode([
@@ -202,6 +240,7 @@ try {
         $db->rollBack();
     }
 
+    file_put_contents(__DIR__ . '/error_log.txt', date('[Y-m-d H:i:s] ') . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", FILE_APPEND);
     http_response_code(500);
     echo json_encode([
         'success' => false,

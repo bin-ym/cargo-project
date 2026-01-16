@@ -43,15 +43,16 @@ require_once __DIR__ . '/../layout/header_transporter.php';
 
             <div class="recent-activity">
                 <h3>Earnings Breakdown (Last 7 Days)</h3>
-                <canvas id="earningsChart" style="max-height: 300px; padding: 20px;"></canvas>
+                <canvas id="earningsChart" class="p-20" style="max-height: 300px;"></canvas>
             </div>
 
-            <div class="recent-activity" style="margin-top: 30px;">
+            <div class="recent-activity mt-20" style="margin-top: 30px;">
                 <h3>Recent Payments</h3>
                 <div class="activity-list" id="recentPayments">
-                    <p style="color: #64748b; padding: 20px; text-align: center;">Loading payments...</p>
+                    <p class="text-center p-20 text-muted">Loading payments...</p>
                 </div>
             </div>
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -126,7 +127,7 @@ async function loadEarnings() {
             paymentsList.innerHTML = '';
 
             if (!data.recentDeliveries || data.recentDeliveries.length === 0) {
-                paymentsList.innerHTML = '<p style="color: #64748b; padding: 20px; text-align: center;">No recent payments</p>';
+                paymentsList.innerHTML = '<p class="text-center p-20 text-muted">No recent payments</p>';
             } else {
                 data.recentDeliveries.forEach(item => {
                     if (item.status === 'delivered') {
@@ -139,7 +140,7 @@ async function loadEarnings() {
                                     <p>Payment received for Request <strong>#${item.id}</strong></p>
                                     <span class="activity-time">${item.date}</span>
                                 </div>
-                                <strong style="color: #16a34a;">+${item.earning} ETB</strong>
+                                <strong class="text-success">+${item.earning} ETB</strong>
                             </div>
                         `;
                     }
@@ -155,5 +156,3 @@ async function loadEarnings() {
 loadEarnings();
 feather.replace();
 </script>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>

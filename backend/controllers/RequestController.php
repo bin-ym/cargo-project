@@ -15,7 +15,8 @@ class RequestController {
             $sql = "SELECT r.*, u.full_name as customer_name, u.phone, u.email,
                            s.transporter_id, t_user.full_name as transporter_name, s.status as shipment_status
                     FROM cargo_requests r 
-                    JOIN users u ON r.customer_id = u.id
+                    JOIN customers c ON r.customer_id = c.id
+                    JOIN users u ON c.user_id = u.id
                     LEFT JOIN shipments s ON r.id = s.request_id
                     LEFT JOIN users t_user ON s.transporter_id = t_user.id
                     WHERE r.payment_status = 'paid'"; // Only show paid requests
@@ -39,7 +40,8 @@ class RequestController {
             $sql = "SELECT r.*, u.full_name as customer_name, u.phone, u.email,
                            s.transporter_id, t_user.full_name as transporter_name, s.status as shipment_status, s.delivered_at
                     FROM cargo_requests r 
-                    JOIN users u ON r.customer_id = u.id 
+                    JOIN customers c ON r.customer_id = c.id
+                    JOIN users u ON c.user_id = u.id 
                     LEFT JOIN shipments s ON r.id = s.request_id
                     LEFT JOIN users t_user ON s.transporter_id = t_user.id
                     WHERE r.id = ? AND r.payment_status = 'paid'"; // Only show paid requests
@@ -60,17 +62,18 @@ class RequestController {
         }
     }
 
-    public function getByCustomerId($customerId) {
+    public function getByCustomerId($userId) {
         try {
             $sql = "SELECT r.*, 
                            s.transporter_id, t_user.full_name as transporter_name, s.status as shipment_status
                     FROM cargo_requests r 
+                    JOIN customers c ON r.customer_id = c.id
                     LEFT JOIN shipments s ON r.id = s.request_id
                     LEFT JOIN users t_user ON s.transporter_id = t_user.id
-                    WHERE r.customer_id = ?
+                    WHERE c.user_id = ?
                     ORDER BY r.created_at DESC";
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([$customerId]);
+            $stmt->execute([$userId]);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             return [];
@@ -161,7 +164,8 @@ class RequestController {
                            s.status as shipment_status, s.id as shipment_id
                     FROM cargo_requests r 
                     JOIN shipments s ON r.id = s.request_id
-                    JOIN users u ON r.customer_id = u.id
+                    JOIN customers c ON r.customer_id = c.id
+                    JOIN users u ON c.user_id = u.id
                     WHERE s.transporter_id = ?
                     ORDER BY r.created_at DESC";
             $stmt = $this->db->prepare($sql);
@@ -198,6 +202,20 @@ class RequestController {
                     $stmtVeh = $this->db->prepare("UPDATE vehicles SET status = 'available' WHERE id = ?");
                     $stmtVeh->execute([$shipment['vehicle_id']]);
                 }
+            }
+
+            // 4. Notify Customer
+            $stmtUser = $this->db->prepare("SELECT user_id FROM cargo_requests WHERE id = ?");
+            $stmtUser->execute([$requestId]);
+            $user = $stmtUser->fetch();
+
+            if ($user) {
+                $title = "Shipment Update";
+                $message = "Your shipment #{$requestId} is now: " . ucfirst(str_replace('_', ' ', $status));
+                $type = ($status === 'delivered') ? 'success' : 'info';
+                
+                $stmtNotif = $this->db->prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)");
+                $stmtNotif->execute([$user['user_id'], $title, $message, $type]);
             }
             
             $this->db->commit();

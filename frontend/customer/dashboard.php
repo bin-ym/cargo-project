@@ -10,13 +10,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 require_once __DIR__ . '/../layout/header_customer.php';
 ?>
 
-<div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-    <main class="main-content">
+<div class="customer-layout">
+    <?php include __DIR__ . '/../layout/navbar_customer.php'; ?>
+
+    <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar">
             <h2>Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?> 👋</h2>
             <div class="user-info">
-                <span><?= ucfirst($_SESSION['role']) ?></span>
+                <span class="badge badge-primary"><?= ucfirst($_SESSION['role']) ?></span>
             </div>
         </header>
 
@@ -50,19 +51,23 @@ require_once __DIR__ . '/../layout/header_customer.php';
             </div>
 
             <!-- Pending Payments Section -->
-            <div id="pendingPaymentsSection" style="display: none; margin-top: 30px;">
-                <h3 style="margin-bottom: 15px; color: #b91c1c;">⚠️ Pending Payments</h3>
-                <div class="card" style="border-left: 4px solid #ef4444;">
+            <div id="pendingPaymentsSection" class="alert-section" style="display: none;">
+                <h3 class="alert-title">⚠️ Pending Payments</h3>
+                <div class="card" class="alert-card">
                     <div id="pendingPaymentsList"></div>
                 </div>
             </div>
 
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                <div class="activity-list" id="activityList">
-                    <p style="color: #64748b; padding: 20px; text-align: center;">Loading activity...</p>
-                </div>
-            </div>
+            <div class="recent-activity-card">
+    <div class="activity-header">
+        <h3>Recent Activity</h3>
+        <span class="activity-subtitle">Latest updates on your shipments</span>
+    </div>
+
+    <div class="activity-timeline" id="activityList">
+        <p class="text-muted text-center p-4">Loading activity...</p>
+    </div>
+</div>
 
             <div class="quick-actions">
                 <a href="new_request.php" class="btn btn-primary">
@@ -100,7 +105,7 @@ async function loadDashboardStats() {
             activityList.innerHTML = '';
 
             if (data.recentActivity.length === 0) {
-                activityList.innerHTML = '<p style="color: #64748b; padding: 20px; text-align: center;">No recent activity</p>';
+                activityList.innerHTML = '<p class="text-muted text-center p-4">No recent activity</p>';
             } else {
                 data.recentActivity.forEach(item => {
                     activityList.innerHTML += `
@@ -167,10 +172,11 @@ function formatTimeAgo(dateString) {
 async function initiatePayment(requestId) {
     if (!confirm("Proceed to payment for Request #" + requestId + "?")) return;
 
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
     try {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "Processing...";
+        btn.innerHTML = '<i class="spinner-small"></i> Processing...';
         btn.disabled = true;
 
         const res = await fetch('/cargo-project/backend/api/customer/initiate_payment.php', {
@@ -181,24 +187,26 @@ async function initiatePayment(requestId) {
         const data = await res.json();
 
         if (data.success) {
+            btn.innerHTML = '<i class="spinner-small"></i> Redirecting...';
             window.location.href = data.payment_url;
         } else {
             alert("Payment Error: " + data.error);
-            btn.innerText = originalText;
+            btn.innerHTML = originalText;
             btn.disabled = false;
         }
     } catch (err) {
         console.error(err);
         alert("An error occurred.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
 // Check for Payment Verification on Load
 const urlParams = new URLSearchParams(window.location.search);
 const txRef = urlParams.get('tx_ref');
-const status = urlParams.get('status');
 
-if (txRef || status === 'success') {
+if (txRef) {
     verifyPayment(txRef);
 }
 
@@ -211,17 +219,17 @@ async function verifyPayment(ref) {
 
         if (result.success) {
             alert("Payment Successful! Your request has been approved.");
-            // Clean URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-            // Reload to update stats
-            window.location.reload();
+            // Clean URL and reload by navigating to the base path
+            window.location.href = window.location.pathname;
         } else {
             console.error(result.error);
             alert("Payment verification failed: " + (result.error || "Unknown error"));
+            // Clean URL even on failure to avoid loops
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     } catch (err) {
         console.error("Verification error:", err);
-        alert("An error occurred while verifying payment.");
+        alert("An error occurred while verifying payment. Please check your internet connection or contact support.");
     }
 }
 
@@ -230,4 +238,4 @@ loadDashboardStats();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/footer_customer.php'; ?>

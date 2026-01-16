@@ -7,8 +7,6 @@ $requestId = $_GET['id'] ?? 0;
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
         <header class="topbar">
             <h2>Items for Request #CT-<?= str_pad($requestId, 4, '0', STR_PAD_LEFT) ?></h2>
@@ -78,21 +76,34 @@ $requestId = $_GET['id'] ?? 0;
             <span class="close" onclick="closeAssignModal()">&times;</span>
         </div>
         <form id="assignForm">
+            <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <p style="margin: 0; font-size: 13px; color: #64748b;">Requested Vehicle Type:</p>
+                <p id="requestedVehicleTypeDisplay" style="margin: 5px 0 0; font-size: 16px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="truck" style="width: 18px;"></i>
+                    <span>-</span>
+                </p>
+            </div>
             <div class="form-group">
-                <label for="transporterSelect">Select Transporter</label>
+                <label for="transporterSelect">
+                    <i data-feather="user" style="width: 16px;"></i>
+                    Select Transporter
+                </label>
                 <select id="transporterSelect" required>
                     <option value="">Select Transporter</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="vehicleSelect">Select Vehicle</label>
+                <label for="vehicleSelect">
+                    <i data-feather="truck" style="width: 16px;"></i>
+                    Select Vehicle
+                </label>
                 <select id="vehicleSelect" required>
                     <option value="">Select Vehicle</option>
                 </select>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeAssignModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Assign</button>
+                <button type="submit" class="btn btn-primary">Approve & Assign</button>
             </div>
         </form>
     </div>
@@ -199,8 +210,11 @@ $requestId = $_GET['id'] ?? 0;
     display: block;
     margin-bottom: 8px;
     color: #334155;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .modal .form-group select,
@@ -251,8 +265,6 @@ $requestId = $_GET['id'] ?? 0;
 }
 </style>
 
-<!-- ... Modals ... -->
-
 <script>
 let data = [];
 const requestId = <?= $requestId ?>;
@@ -290,6 +302,7 @@ async function fetchDetails() {
             
             // Store vehicle type for assignment modal
             currentRequestVehicleType = r.vehicle_type;
+            document.querySelector('#requestedVehicleTypeDisplay span').innerText = capitalizeVehicleType(r.vehicle_type);
 
             // Render Items
             renderItems(r.items || []);
@@ -412,6 +425,7 @@ async function openAssignModal() {
             });
             
             assignModal.style.display = "flex";
+            feather.replace();
         } else {
             alert("Failed to load transporters or vehicles");
         }
@@ -485,4 +499,4 @@ fetchDetails(); // Call new fetch function
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

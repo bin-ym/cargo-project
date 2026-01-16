@@ -8,8 +8,10 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'manager', 'finance', 'transporter', 'customer') NOT NULL,
     must_change_password BOOLEAN DEFAULT FALSE,
-    is_verified BOOLEAN DEFAULT FALSE,
-    verification_token VARCHAR(100),
+    is_verified TINYINT(1) DEFAULT 0,
+    verification_token VARCHAR(255),
+    reset_token VARCHAR(255),
+    reset_expires DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -112,6 +114,18 @@ CREATE TABLE IF NOT EXISTS ratings (
     FOREIGN KEY (request_id) REFERENCES cargo_requests(id) ON DELETE CASCADE,
     FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (transporter_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Notifications Table
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type ENUM('info', 'success', 'warning', 'error') DEFAULT 'info',
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Insert sample data for testing (only if tables are empty)

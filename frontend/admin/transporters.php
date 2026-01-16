@@ -5,8 +5,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
         <header class="topbar">
             <h2>Transporters</h2>
@@ -79,6 +77,27 @@ require_once __DIR__ . '/../layout/header_admin.php';
             <div class="form-group">
                 <label>Phone</label>
                 <input type="text" id="phone" required>
+            </div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required>
+            </div>
+
+            <div id="passwordFields">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>License Copy</label>
+                <input type="file" id="license_copy" accept="image/*,.pdf">
             </div>
 
             <div class="form-group">
@@ -262,6 +281,9 @@ function renderTable() {
             <td>${row.phone}</td>
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
+                <a href="transporter_view.php?id=${row.id}" class="btn-small btn-view" style="margin-right:5px;">
+                    <i data-feather="eye"></i> View
+                </a>
                 <button onclick="editTransporter(${row.id})" class="btn-small btn-view" style="margin-right:5px;">Edit</button>
                 <button onclick="deleteTransporter(${row.id})" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;">Delete</button>
             </td>
@@ -279,6 +301,10 @@ const form = document.getElementById("transporterForm");
 function openModal() {
     document.getElementById("modalTitle").innerText = "Add Transporter";
     document.getElementById("transporterId").value = "";
+    document.getElementById("passwordFields").style.display = "block";
+    document.getElementById("password").required = true;
+    document.getElementById("confirmPassword").required = true;
+    document.getElementById("username").disabled = false;
     form.reset();
     modal.style.display = "flex";
 }
@@ -296,6 +322,21 @@ function editTransporter(id) {
         document.getElementById("email").value = item.email;
         document.getElementById("phone").value = item.phone;
         document.getElementById("status").value = item.status;
+        
+        // Hide password fields when editing
+        document.getElementById("passwordFields").style.display = "none";
+        document.getElementById("password").required = false;
+        document.getElementById("confirmPassword").required = false;
+        
+        // Disable username editing if it exists in the data (need to check if API returns it)
+        if (item.username) {
+            document.getElementById("username").value = item.username;
+            document.getElementById("username").disabled = true;
+        } else {
+            document.getElementById("username").value = "";
+            document.getElementById("username").disabled = false;
+        }
+
         modal.style.display = "flex";
     }
 }
@@ -320,37 +361,53 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
     
     const id = document.getElementById("transporterId").value;
-    const payload = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        status: document.getElementById("status").value,
-    };
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}?id=${id}` : API_URL;
+    if (!id && password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById("name").value);
+    formData.append('email', document.getElementById("email").value);
+    formData.append('phone', document.getElementById("phone").value);
+    formData.append('username', document.getElementById("username").value);
+    formData.append('status', document.getElementById("status").value);
+
+    if (!id) {
+        formData.append('password', password);
+    }
+
+    const fileInput = document.getElementById("license_copy");
+    if (fileInput.files.length > 0) {
+        formData.append('license_copy', fileInput.files[0]);
+    }
+
+    const method = id ? 'POST' : 'POST'; // We'll use POST for both to support file uploads easily in PHP
+    let url = API_URL;
+    if (id) {
+        url += `?id=${id}&_method=PUT`; // Method spoofing if needed, or just handle in controller
+    }
 
     try {
         const response = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            method: 'POST',
+            body: formData
         });
         const result = await response.json();
         
         if (result.success) {
             closeModal();
             fetchTransporters();
-            if (result.password) {
-                alert("Transporter created successfully!\n\nGENERATED PASSWORD: " + result.password + "\n\nPlease share this with the user.");
-            } else {
-                alert("Transporter saved successfully!");
-            }
+            alert(id ? "Transporter updated successfully!" : "Transporter created successfully!");
         } else {
             alert("Error: " + result.error);
         }
     } catch (error) {
         console.error("Error saving:", error);
+        alert("An error occurred while saving.");
     }
 });
 
@@ -406,4 +463,4 @@ fetchTransporters();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

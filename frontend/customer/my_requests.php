@@ -9,11 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 require_once __DIR__ . '/../layout/header_customer.php';
 ?>
 
-<div class="dashboard">
-    <?php include 'sidebar.php'; ?>
+<div class="customer-layout">
+    <?php include __DIR__ . '/../layout/navbar_customer.php'; ?>
 
-    <main class="main-content">
-        <header class="topbar">
+    <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
+        <header class="topbar" style="margin-bottom: 30px;">
             <h2>My Requests</h2>
         </header>
 
@@ -190,7 +190,7 @@ function renderTable(requests) {
         const isPending = (req.status === 'pending');
         
         // Check if already rated
-        let actionButton = `<a href="track_shipment.php?id=${req.id}" class="btn-small" style="background:#3b82f6; color:white; text-decoration:none; padding:6px 12px; border-radius:6px;">Track</a>`;
+        let actionButton = `<a href="track_shipment.php?id=${req.id}" class="btn-small btn-view" style="margin-right: 5px; background:#3b82f6; color:white; text-decoration:none; padding:6px 12px; border-radius:6px;">Track</a>`;
         
         if (isCompleted) {
             try {
@@ -376,4 +376,4 @@ loadRequests();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/footer_customer.php'; ?>

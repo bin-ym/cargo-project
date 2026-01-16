@@ -14,13 +14,7 @@ $requestId = $_GET['id'] ?? 0;
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
 <style>
-    #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 12px;
-        z-index: 1;
-        margin-top: 20px;
-    }
+    /* Map styles moved to transporter.css */
 </style>
 
 <div class="dashboard">
@@ -35,26 +29,26 @@ $requestId = $_GET['id'] ?? 0;
 
 
         <div class="content">
-            <div class="recent-activity" id="statusUpdateSection" style="margin-bottom: 20px;">
+            <div class="recent-activity mb-20" id="statusUpdateSection">
                 <h3>Update Status</h3>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button onclick="updateStatus('in-transit')" class="btn" style="background:#3b82f6; color:white; border:none;">Start / In Transit</button>
-                    <button onclick="updateStatus('delivered')" class="btn" style="background:#16a34a; color:white; border:none;">Mark Delivered</button>
+                <div class="flex gap-10 mt-15">
+                    <button onclick="updateStatus('in-transit')" class="btn bg-primary">Start / In Transit</button>
+                    <button onclick="updateStatus('delivered')" class="btn bg-success">Mark Delivered</button>
                 </div>
             </div>
 
 
             <!-- GPS / Map Section -->
-            <div class="recent-activity" style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div class="recent-activity mb-20">
+                <div class="flex justify-between items-center mb-15">
                     <h3>Shipment Location (GPS)</h3>
-                    <button id="shareLocationBtn" onclick="toggleLocationSharing()" class="btn" style="background: #64748b; color: white;">
+                    <button id="shareLocationBtn" onclick="toggleLocationSharing()" class="btn bg-secondary">
                         <i data-feather="navigation" style="width: 16px; height: 16px; vertical-align: middle;"></i>
                         Share Live Location
                     </button>
                 </div>
-                <div id="map"></div>
-                <p style="margin-top: 10px; color: #64748b; font-size: 14px;">
+                <div id="map" class="map-container"></div>
+                <p class="mt-10 text-muted" style="font-size: 14px;">
                     <i data-feather="map-pin" style="width: 16px; height: 16px; vertical-align: text-bottom;"></i>
                     Current Location: <span id="locationText">Loading...</span>
                 </p>
@@ -62,7 +56,7 @@ $requestId = $_GET['id'] ?? 0;
 
             <div class="table-wrapper">
                 <h3>Cargo Items</h3>
-                <table class="table-modern" style="margin-top: 15px;">
+                <table class="table-modern mt-15">
                     <thead>
                         <tr>
                             <th>Item Name</th>
@@ -76,9 +70,10 @@ $requestId = $_GET['id'] ?? 0;
                 </table>
             </div>
             
-            <div style="margin-top: 20px;">
+            <div class="mt-20">
                 <a href="assignments.php" class="btn btn-secondary">Back to Assignments</a>
             </div>
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -141,7 +136,7 @@ async function fetchRequestDetails() {
     }
 }
 
-function updateMapWithRoute(data) {
+async function updateMapWithRoute(data) {
     const pickupLat = parseFloat(data.pickup_lat);
     const pickupLng = parseFloat(data.pickup_lng);
     const dropoffLat = parseFloat(data.dropoff_lat);
@@ -174,11 +169,34 @@ function updateMapWithRoute(data) {
     dropoffMarker = L.marker(end, {icon: createIcon('red')}).addTo(map)
         .bindPopup(`<b>Dropoff:</b><br>${data.dropoff_location}`);
     
-    // Draw route
-    routeLine = L.polyline([start, end], {color: 'blue', weight: 4, opacity: 0.7}).addTo(map);
-    
-    // Fit bounds
-    map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+    // OSRM Routing
+    const url = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
+
+    try {
+        const response = await fetch(url);
+        const routeData = await response.json();
+
+        if (routeData.code === 'Ok' && routeData.routes.length > 0) {
+            const route = routeData.routes[0];
+            // Flip coordinates for Leaflet
+            const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline(latLngs, {color: 'blue', weight: 4, opacity: 0.7}).addTo(map);
+            map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+        } else {
+            // Fallback to straight line
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline([start, end], {color: 'blue', weight: 4, opacity: 0.7, dashArray: '10, 10'}).addTo(map);
+            map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+        }
+    } catch (e) {
+        console.error("Routing error:", e);
+        // Fallback to straight line
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline([start, end], {color: 'blue', weight: 4, opacity: 0.7, dashArray: '10, 10'}).addTo(map);
+        map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+    }
     
     document.getElementById('locationText').innerText = `${data.pickup_location} → ${data.dropoff_location}`;
 }
@@ -343,5 +361,3 @@ initMap();
 fetchItems();
 feather.replace();
 </script>
-
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>

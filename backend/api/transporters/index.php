@@ -10,26 +10,50 @@ require_once __DIR__ . '/../../controllers/TransporterController.php';
 
 $controller = new TransporterController();
 $method = $_SERVER['REQUEST_METHOD'];
+if ($method === 'POST' && isset($_GET['_method'])) {
+    $method = strtoupper($_GET['_method']);
+}
 
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        $transporter = $controller->getById($_GET['id']);
+        if (isset($_GET['details']) && $_GET['details'] === 'true') {
+            $transporter = $controller->getDetails($_GET['id']);
+        } else {
+            $transporter = $controller->getById($_GET['id']);
+        }
         echo json_encode($transporter ? ["success" => true, "data" => $transporter] : ["success" => false, "error" => "Not found"]);
     } else {
         $transporters = $controller->getAll();
         echo json_encode(["success" => true, "data" => $transporters]);
     }
 } elseif ($method === 'POST') {
-    $data = json_decode(file_get_contents("php://input"), true);
-    $result = $controller->create($data);
-    if ($result['success']) {
-        echo json_encode($result);
-    } else {
-        echo json_encode(["success" => false, "error" => "Failed to create transporter: " . ($result['error'] ?? 'Unknown error')]);
+    // Gather data from POST and FILES
+    $data = $_POST;
+    if (isset($_FILES['license_copy']) && $_FILES['license_copy']['error'] === UPLOAD_ERR_OK) {
+        $data['license_copy'] = $_FILES['license_copy'];
     }
+
+    $result = $controller->create($data);
+    echo json_encode($result);
 } elseif ($method === 'PUT') {
-    $data = json_decode(file_get_contents("php://input"), true);
-    if (isset($_GET['id']) && $controller->update($_GET['id'], $data)) {
+    if (!isset($_GET['id'])) {
+        echo json_encode(["success" => false, "error" => "ID required for update"]);
+        exit();
+    }
+
+    // If it was a real PUT (not spoofed), we need to read php://input
+    // But our frontend uses spoofing for file uploads.
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+    } else {
+        // Spoofed PUT (POST with _method=PUT)
+        $data = $_POST;
+        if (isset($_FILES['license_copy']) && $_FILES['license_copy']['error'] === UPLOAD_ERR_OK) {
+            $data['license_copy'] = $_FILES['license_copy'];
+        }
+    }
+
+    if ($controller->update($_GET['id'], $data)) {
         echo json_encode(["success" => true, "message" => "Transporter updated"]);
     } else {
         echo json_encode(["success" => false, "error" => "Failed to update transporter"]);

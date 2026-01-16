@@ -10,8 +10,6 @@ require_once __DIR__ . '/../layout/header_admin.php';
 ?>
 
 <div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-
     <main class="main-content">
         <header class="topbar">
             <h2>Earnings Overview</h2>
@@ -59,6 +57,8 @@ require_once __DIR__ . '/../layout/header_admin.php';
                     </tbody>
                 </table>
             </div>
+        </div>
+            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -140,4 +140,4 @@ loadEarnings();
 feather.replace();
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+

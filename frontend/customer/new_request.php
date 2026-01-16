@@ -19,15 +19,17 @@ $txRef = "TX-" . uniqid() . "-" . time();
     .price-total { font-size: 1.25rem; font-weight: 700; color: #0f172a; border-top: 1px solid #cbd5e1; padding-top: 10px; }
     .input-group { position: relative; }
     .input-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #64748b; cursor: pointer; }
+    .spinner-small { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
-<div class="dashboard">
-    <?php include 'sidebar.php'; ?>
-    <main class="main-content">
-        <header class="topbar">
+<div class="customer-layout">
+    <?php include __DIR__ . '/../layout/navbar_customer.php'; ?>
+    <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
+        <header class="topbar" style="margin-bottom: 30px;">
             <h2>New Cargo Request</h2>
             <div class="user-info">
-                <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Customer') ?></span>
+                <span class="badge badge-primary"><?= htmlspecialchars($_SESSION['full_name'] ?? 'Customer') ?></span>
             </div>
         </header>
 
@@ -135,7 +137,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                                 <span id="disp_price">0 ETB</span>
                             </div>
                             
-                            <button type="button" onclick="submitRequest()" class="btn btn-primary" style="width: 100%; background: #16a34a; border-color: #16a34a; margin-top: 20px;">
+                            <button type="button" id="submitBtn" onclick="submitRequest()" class="btn btn-primary" style="width: 100%; background: #16a34a; border-color: #16a34a; margin-top: 20px;">
                                 Submit Request
                             </button>
                         </div>
@@ -265,36 +267,46 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 });
             }
 
-            function calculateDistance() {
+            async function calculateDistance() {
                 if (!pickupMarker || !dropoffMarker) return;
 
                 const p = pickupMarker.getLatLng();
                 const d = dropoffMarker.getLatLng();
                 
-                // Simple Haversine distance for now (straight line)
-                const R = 6371; // Radius of earth in km
-                const dLat = deg2rad(d.lat - p.lat);
-                const dLon = deg2rad(d.lng - p.lng);
-                const a = 
-                    Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(deg2rad(p.lat)) * Math.cos(deg2rad(d.lat)) * 
-                    Math.sin(dLon/2) * Math.sin(dLon/2); 
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-                const dist = R * c; // Distance in km
+                // OSRM API (Open Source Routing Machine)
+                // Using the public demo server (Note: For production, host your own OSRM or use a paid service)
+                const url = `https://router.project-osrm.org/route/v1/driving/${p.lng},${p.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`;
 
-                document.getElementById('distance_km').value = dist.toFixed(2);
-                document.getElementById('disp_distance').innerText = dist.toFixed(2) + " km";
+                try {
+                    document.getElementById('disp_distance').innerText = "Calculating...";
+                    
+                    const response = await fetch(url);
+                    const data = await response.json();
 
-                // Draw line
-                if (routeLine) map.removeLayer(routeLine);
-                routeLine = L.polyline([p, d], {color: 'blue'}).addTo(map);
-                map.fitBounds(routeLine.getBounds(), {padding: [20, 20]});
+                    if (data.code === 'Ok' && data.routes.length > 0) {
+                        const route = data.routes[0];
+                        const distKm = (route.distance / 1000).toFixed(2); // Convert meters to km
+                        
+                        document.getElementById('distance_km').value = distKm;
+                        document.getElementById('disp_distance').innerText = distKm + " km";
 
-                calculatePrice();
-            }
-
-            function deg2rad(deg) {
-                return deg * (Math.PI/180);
+                        // Draw Route
+                        if (routeLine) map.removeLayer(routeLine);
+                        
+                        // Flip coordinates for Leaflet (GeoJSON is Lng,Lat; Leaflet is Lat,Lng)
+                        const latLngs = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                        
+                        routeLine = L.polyline(latLngs, {color: 'blue', weight: 5, opacity: 0.7}).addTo(map);
+                        map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+                        
+                        calculatePrice();
+                    } else {
+                        alert("Could not find a road route between these locations.");
+                    }
+                } catch (error) {
+                    console.error("Routing error:", error);
+                    alert("Error calculating route. Please try again.");
+                }
             }
 
             async function calculatePrice() {
@@ -343,6 +355,11 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     }
                 }
 
+                const btn = document.getElementById('submitBtn');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="spinner-small"></i> Processing...';
+
                 // 2. Submit to Backend First
                 const payload = {
                     pickup_location: document.getElementById('pickup_location').value,
@@ -373,14 +390,19 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     const result = await response.json();
 
                     if (result.success && result.payment_url) {
+                        btn.innerHTML = '<i class="spinner-small"></i> Redirecting to Payment...';
                         // Redirect to Chapa Payment Page
                         window.location.href = result.payment_url;
                     } else {
                         alert('Error creating request: ' + (result.error || 'Unknown error'));
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     alert('An error occurred.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             }
 
@@ -391,4 +413,4 @@ $txRef = "TX-" . uniqid() . "-" . time();
     </main>
 </div>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/footer_customer.php'; ?>

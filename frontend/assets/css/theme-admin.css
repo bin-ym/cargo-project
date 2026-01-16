@@ -1,0 +1,12 @@
+:root {
+  --sidebar-bg: linear-gradient(180deg, #1e293b, #0f172a);
+  --accent: #dc2626;
+}
+
+.sidebar {
+  background: var(--sidebar-bg);
+}
+
+.stat-card::before {
+  background: var(--accent);
+}
