@@ -3,25 +3,29 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 ?>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-    <div class="logo">
-        <img src="/cargo-project/frontend/public/logo.jpg" alt="Logo">
+        <div class="logo">
+            <img src="/cargo-project/frontend/public/logo.jpg" alt="Logo">
+        </div>
+        <h3><?= __('admin') ?></h3>
     </div>
-    <h3><?= __('admin') ?></h3>
-</div>
+
     <nav>
         <?php
         $currentPage = basename($_SERVER['PHP_SELF']);
         $requestsPages = ['requests.php', 'approved.php', 'pending.php'];
         $managementPages = ['customers.php', 'transporters.php', 'cargo_items.php'];
 
+        // Determine which dropdown should open on page load
         $isRequestsOpen = in_array($currentPage, $requestsPages) ? 'open' : '';
         $isManagementOpen = in_array($currentPage, $managementPages) ? 'open' : '';
         ?>
 
+        <!-- Dashboard -->
         <a href="dashboard.php" class="menu-item <?= $currentPage=='dashboard.php'?'active':''?>">
             <i data-feather="home"></i> <?= __('dashboard') ?>
         </a>
 
+        <!-- Users Management Dropdown -->
         <div class="menu-group <?= $isManagementOpen ?>">
             <button class="menu-dropdown">
                 <i data-feather="users"></i> <?= __('users') ?>
@@ -33,22 +37,26 @@ require_once __DIR__ . '/../../backend/config/languages.php';
             </div>
         </div>
 
+        <!-- Requests Dropdown -->
         <div class="menu-group <?= $isRequestsOpen ?>">
             <a href="requests.php" class="menu-item <?= $currentPage=='requests.php'?'active':'' ?>">
                 <i data-feather="package"></i> <?= __('requests') ?>
             </a>
         </div>
 
+        <!-- Earnings -->
         <a href="earnings.php" class="menu-item <?= $currentPage=='earnings.php'?'active':'' ?>">
             <i data-feather="dollar-sign"></i> <?= __('earnings') ?>
         </a>
 
+        <!-- Vehicles -->
         <div class="menu-group">
             <a href="vehicles.php" class="menu-item <?= $currentPage=='vehicles.php'?'active':'' ?>">
                 <i data-feather="truck"></i> <?= __('vehicles') ?>
             </a>
         </div>
 
+        <!-- Logout -->
         <a href="/cargo-project/backend/api/auth/logout.php" class="menu-item logout">
             <i data-feather="log-out"></i> <?= __('logout') ?>
         </a>
@@ -66,19 +74,28 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const dropdowns = document.querySelectorAll('.menu-dropdown');
-    
+
     dropdowns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
             const group = btn.parentElement;
+
+            // Toggle clicked dropdown
             group.classList.toggle('open');
-            
-            // Close other dropdowns (optional, but good for UX)
+
+            // Close all other dropdowns
             document.querySelectorAll('.menu-group').forEach(otherGroup => {
                 if (otherGroup !== group) {
                     otherGroup.classList.remove('open');
                 }
             });
         });
+    });
+
+    // Automatically open dropdown if it contains the active page
+    document.querySelectorAll('.menu-group').forEach(group => {
+        if (group.querySelector('.menu-item.active')) {
+            group.classList.add('open');
+        }
     });
 });
 

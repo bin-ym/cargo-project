@@ -150,3 +150,29 @@ function formatTimeAgo(dateString) {
 loadDashboardStats();
 feather.replace();
 </script>
+
+<!-- Sidebar Dropdown JS (Fix for Dashboard) -->
+<script>
+function initSidebarDropdown() {
+    const dropdowns = document.querySelectorAll('.menu-dropdown');
+    
+    dropdowns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.parentElement;
+            group.classList.toggle('open');
+
+            // Close other menu groups
+            document.querySelectorAll('.menu-group').forEach(otherGroup => {
+                if (otherGroup !== group) otherGroup.classList.remove('open');
+            });
+        });
+    });
+}
+
+// Initialize immediately if DOM loaded
+if (document.readyState !== 'loading') {
+    initSidebarDropdown();
+} else {
+    document.addEventListener('DOMContentLoaded', initSidebarDropdown);
+}
+</script>
