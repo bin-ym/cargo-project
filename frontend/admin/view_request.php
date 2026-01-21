@@ -34,4 +34,4 @@ $requestId = $_GET['id'] ?? 'Unknown';
     </main>
 </div>
 
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+

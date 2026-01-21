@@ -142,27 +142,27 @@
             <!-- Brand & Mission -->
             <div class="footer-brand">
                 <div class="brand-header">
-                    <div class="brand-icon">C</div>
-                    <h4>Cargo Connect</h4>
+                    <div class="brand-icon"><?= __('CargoConnect')[0] ?></div>
+                    <h4><?= __('CargoConnect') ?></h4>
                 </div>
                 <p>
-                    Connecting businesses with reliable transporters across Ethiopia. Fast, secure, and transparent logistics.
+                    <?= __('footer_brand_desc') ?>
                 </p>
             </div>
 
             <!-- Quick Links -->
             <div class="footer-links">
-                <h5>Quick Links</h5>
+                <h5><?= __('quick_links') ?></h5>
                 <ul>
-                    <li><a href="/cargo-project/frontend/customer/dashboard.php">Dashboard</a></li>
-                    <li><a href="/cargo-project/frontend/customer/new_request.php">New Request</a></li>
-                    <li><a href="/cargo-project/frontend/customer/my_requests.php">My Shipments</a></li>
+                    <li><a href="/cargo-project/frontend/customer/dashboard.php"><?= __('dashboard') ?></a></li>
+                    <li><a href="/cargo-project/frontend/customer/new_request.php"><?= __('new_request') ?></a></li>
+                    <li><a href="/cargo-project/frontend/customer/my_requests.php"><?= __('my_shipments') ?></a></li>
                 </ul>
             </div>
 
             <!-- Contact Info -->
             <div class="footer-contact">
-                <h5>Contact</h5>
+                <h5><?= __('contact') ?></h5>
                 <div><i data-feather="mail"></i><a href="mailto:support@cargoconnect.et">support@cargoconnect.et</a></div>
                 <div><i data-feather="phone"></i><a href="tel:+251911000000">+251 911 000 000</a></div>
             </div>
@@ -176,7 +176,7 @@
                 <a href="#"><i data-feather="instagram"></i></a>
                 <a href="#"><i data-feather="linkedin"></i></a>
             </div>
-            <div>&copy; <?= date('Y') ?> Cargo Connect. All rights reserved.</div>
+            <div>&copy; <?= date('Y') ?> <?= __('CargoConnect') ?>. <?= __('all_rights_reserved') ?></div>
         </div>
     </div>
 </footer>

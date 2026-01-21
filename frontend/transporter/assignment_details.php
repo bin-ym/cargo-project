@@ -73,7 +73,7 @@ $requestId = $_GET['id'] ?? 0;
             <div class="mt-20">
                 <a href="assignments.php" class="btn btn-secondary">Back to Assignments</a>
             </div>
-            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+            
         </div>
     </main>
 </div>
@@ -184,6 +184,29 @@ async function updateMapWithRoute(data) {
             if (routeLine) map.removeLayer(routeLine);
             routeLine = L.polyline(latLngs, {color: 'blue', weight: 4, opacity: 0.7}).addTo(map);
             map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
+
+            // Display ETA
+            const duration = route.duration; // in seconds
+            const minutes = Math.round(duration / 60);
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            const etaText = hours > 0 ? `${hours}h ${remainingMinutes}m` : `${minutes}m`;
+            
+            document.getElementById('locationText').innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span>${data.pickup_location} → ${data.dropoff_location}</span>
+                    <span class="badge badge-info" style="font-size: 12px; width: fit-content;">
+                        <i data-feather="clock" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i>
+                        Est. Travel Time: ${etaText}
+                    </span>
+                </div>
+            `;
+            feather.replace();
+
+            // Car Animation if in-transit
+            if (data.shipment_status === 'in-transit') {
+                startCarAnimation(latLngs);
+            }
         } else {
             // Fallback to straight line
             if (routeLine) map.removeLayer(routeLine);
@@ -233,6 +256,51 @@ function renderTable(data) {
             <td>${row.description || '-'}</td>
         </tr>`;
     });
+}
+
+let carMarker = null;
+let animationFrame = null;
+
+function startCarAnimation(latLngs) {
+    if (carMarker) map.removeLayer(carMarker);
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+
+    const carIcon = L.divIcon({
+        html: '<i data-feather="truck" style="color: #2563eb; fill: white; width: 24px; height: 24px;"></i>',
+        className: 'car-icon',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    carMarker = L.marker(latLngs[0], { icon: carIcon }).addTo(map);
+    feather.replace();
+
+    let step = 0;
+    const totalSteps = latLngs.length;
+    const speed = 2; 
+
+    function animate() {
+        if (step >= totalSteps) {
+            step = 0; 
+        }
+
+        carMarker.setLatLng(latLngs[Math.floor(step)]);
+        
+        if (step + 1 < totalSteps) {
+            const nextPoint = latLngs[Math.floor(step) + 1];
+            const currPoint = latLngs[Math.floor(step)];
+            const angle = Math.atan2(nextPoint[0] - currPoint[0], nextPoint[1] - currPoint[1]) * 180 / Math.PI;
+            const iconElement = carMarker.getElement().querySelector('i');
+            if (iconElement) {
+                iconElement.style.transform = `rotate(${angle + 90}deg)`;
+            }
+        }
+
+        step += 0.1 * speed;
+        animationFrame = requestAnimationFrame(animate);
+    }
+
+    animate();
 }
 
 async function updateStatus(status) {

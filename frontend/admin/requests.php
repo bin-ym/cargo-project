@@ -248,4 +248,3 @@ feather.replace();
 .close { font-size: 24px; cursor: pointer; }
 </style>
 
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

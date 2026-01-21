@@ -250,4 +250,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+

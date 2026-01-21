@@ -1,13 +1,14 @@
 <?php
 // frontend/public/about.php
 session_start();
+require_once __DIR__ . '/../../backend/config/languages.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $_SESSION['lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - CargoConnect</title>
+    <title><?= __('About us') ?></title>
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="../css/public.css">
 </head>
@@ -18,10 +19,9 @@ session_start();
 <!-- Hero / Intro -->
 <section class="hero hero-small">
     <div class="hero-content">
-        <h1>About CargoConnect</h1>
+        <h1><?= __('About us') ?></h1>
         <p>
-            CargoConnect is a modern logistics platform built to simplify cargo transportation,
-            connect customers with trusted transporters, and bring transparency to logistics operations.
+            <?= __('about_desc') ?>
         </p>
     </div>
 </section>
@@ -29,9 +29,9 @@ session_start();
 <!-- Mission Section -->
 <section class="features">
     <div class="section-header">
-        <h2>Our Mission</h2>
+        <h2><?= __('Our mission') ?></h2>
         <p>
-            To make logistics smarter, faster, and more reliable for businesses and individuals.
+            <?= __('mission_desc') ?>
         </p>
     </div>
 
@@ -40,10 +40,9 @@ session_start();
             <div class="icon-box">
                 <i data-feather="target"></i>
             </div>
-            <h3>Efficiency</h3>
+            <h3><?= __('efficiency') ?></h3>
             <p>
-                We eliminate delays and complexity by digitizing the entire shipping lifecycle —
-                from request to delivery.
+                <?= __('efficiency_desc') ?>
             </p>
         </div>
 
@@ -51,10 +50,9 @@ session_start();
             <div class="icon-box">
                 <i data-feather="users"></i>
             </div>
-            <h3>Trust</h3>
+            <h3><?= __('trust') ?></h3>
             <p>
-                We work only with verified transporters, ensuring safety, accountability,
-                and peace of mind.
+                <?= __('trust_desc') ?>
             </p>
         </div>
 
@@ -62,9 +60,9 @@ session_start();
             <div class="icon-box">
                 <i data-feather="trending-up"></i>
             </div>
-            <h3>Innovation</h3>
+            <h3><?= __('innovation') ?></h3>
             <p>
-                By leveraging GPS tracking and smart systems, we push logistics into the future.
+                <?= __('innovation_desc') ?>
             </p>
         </div>
     </div>
@@ -73,10 +71,9 @@ session_start();
 <!-- Vision Section -->
 <section class="content-section">
     <div class="container vision-section">
-        <h2>Our Vision</h2>
+        <h2><?= __('our_vision') ?></h2>
         <p>
-            We envision a future where moving goods is as simple as sending a message —
-            transparent, trackable, and accessible to everyone.
+            <?= __('vision_desc') ?>
         </p>
     </div>
 </section>

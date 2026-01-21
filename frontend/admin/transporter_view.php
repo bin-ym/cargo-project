@@ -212,4 +212,3 @@ function renderDetails(data) {
 fetchDetails();
 </script>
 
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->

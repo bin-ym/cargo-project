@@ -79,7 +79,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
 </main>
 
 <!-- Footer -->
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+
 
 <!-- Dashboard JS -->
 <script>

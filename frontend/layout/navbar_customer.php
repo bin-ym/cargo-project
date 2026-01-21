@@ -17,13 +17,21 @@ nav {
     box-sizing: border-box;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--secondary);
+.logo-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--secondary);
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.logo-link img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 .nav-links {
@@ -115,8 +123,9 @@ nav {
 
 <nav>
     <div class="logo">
-        <a href="/cargo-project/frontend/customer/dashboard.php" class="logo">
-            <i data-feather="box"></i> CargoConnect
+        <a href="/cargo-project/frontend/customer/dashboard.php" class="logo-link">
+            <img src="/cargo-project/frontend/public/logo.jpg" alt="CargoConnect Logo">
+            <span>CargoConnect</span>
         </a>
     </div>
 

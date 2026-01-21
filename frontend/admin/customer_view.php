@@ -49,7 +49,7 @@ $customerId = $_GET['id'] ?? 1;
                 </table>
             </div>
             
-            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+            
         </div>
 
     </main>

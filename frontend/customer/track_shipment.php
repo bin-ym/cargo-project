@@ -212,9 +212,75 @@ async function drawRoute(d) {
     const r = await fetch(url);
     const data = await r.json();
 
-    const points = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-    const line = L.polyline(points, { color: '#2563eb', weight: 4 }).addTo(map);
-    map.fitBounds(line.getBounds(), { padding: [40, 40] });
+    if (data.code === 'Ok' && data.routes.length > 0) {
+        const route = data.routes[0];
+        const points = route.geometry.coordinates.map(c => [c[1], c[0]]);
+        const line = L.polyline(points, { color: '#2563eb', weight: 4 }).addTo(map);
+        map.fitBounds(line.getBounds(), { padding: [40, 40] });
+
+        // Display ETA
+        const duration = route.duration;
+        const minutes = Math.round(duration / 60);
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        const etaText = hours > 0 ? `${hours}h ${remainingMinutes}m` : `${minutes}m`;
+        
+        const etaBadge = document.createElement('div');
+        etaBadge.style.cssText = "margin-top: 10px; padding: 10px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; color: #1e40af; font-size: 14px; display: flex; align-items: center; gap: 8px;";
+        etaBadge.innerHTML = `<i data-feather="clock" style="width: 16px; height: 16px;"></i> <b>Est. Arrival:</b> ${etaText}`;
+        document.querySelector('.tracking-info').appendChild(etaBadge);
+        if (typeof feather !== 'undefined') feather.replace();
+
+        // Car Animation if in-transit
+        if (d.shipment_status === 'in-transit') {
+            startCarAnimation(points);
+        }
+    }
+}
+
+let carMarker = null;
+let animationFrame = null;
+
+function startCarAnimation(latLngs) {
+    if (carMarker) map.removeLayer(carMarker);
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+
+    const carIcon = L.divIcon({
+        html: '<i data-feather="truck" style="color: #2563eb; fill: white; width: 24px; height: 24px;"></i>',
+        className: 'car-icon',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    carMarker = L.marker(latLngs[0], { icon: carIcon }).addTo(map);
+    if (typeof feather !== 'undefined') feather.replace();
+
+    let step = 0;
+    const totalSteps = latLngs.length;
+    const speed = 2; 
+
+    function animate() {
+        if (step >= totalSteps) {
+            step = 0; 
+        }
+
+        carMarker.setLatLng(latLngs[Math.floor(step)]);
+        
+        if (step + 1 < totalSteps) {
+            const nextPoint = latLngs[Math.floor(step) + 1];
+            const currPoint = latLngs[Math.floor(step)];
+            const angle = Math.atan2(nextPoint[0] - currPoint[0], nextPoint[1] - currPoint[1]) * 180 / Math.PI;
+            const iconElement = carMarker.getElement().querySelector('i');
+            if (iconElement) {
+                iconElement.style.transform = `rotate(${angle + 90}deg)`;
+            }
+        }
+
+        step += 0.1 * speed;
+        animationFrame = requestAnimationFrame(animate);
+    }
+
+    animate();
 }
 
 initMap();

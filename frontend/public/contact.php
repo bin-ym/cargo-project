@@ -1,12 +1,14 @@
 <?php
+// frontend/public/contact.php
 session_start();
+require_once __DIR__ . '/../../backend/config/languages.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $_SESSION['lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - CargoConnect</title>
+    <title><?= __('Contact us_title') ?></title>
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="../css/public.css">
 </head>
@@ -15,8 +17,8 @@ session_start();
 <?php require_once __DIR__ . '/../layout/navbar.php'; ?>
 
 <section class="page-header">
-    <h1>Contact Us</h1>
-    <p>We're here to help with your logistics needs.</p>
+    <h1><?= __('Contact us') ?></h1>
+    <p><?= __('Contact_us_desc') ?></p>
 </section>
 
 <section class="content-section">
@@ -24,39 +26,39 @@ session_start();
 
         <!-- Contact Info -->
         <div class="contact-info">
-            <h3>Contact Information</h3>
+            <h3><?= __('contact_info_h3') ?></h3>
 
             <div>
                 <i data-feather="map-pin"></i>
-                <span>Bole Road, Addis Ababa, Ethiopia</span>
+                <span><?= __('contact_address') ?></span>
             </div>
 
             <div>
                 <i data-feather="phone"></i>
-                <span>+251 911 234 567</span>
+                <span><?= __('contact_phone') ?></span>
             </div>
 
             <div>
                 <i data-feather="mail"></i>
-                <span>support@cargoconnect.com</span>
+                <span><?= __('contact_email') ?></span>
             </div>
         </div>
 
         <!-- Contact Form -->
         <div class="contact-form">
-            <h3>Send us a Message</h3>
+            <h3><?= __('send_message_h3') ?></h3>
 
             <form method="POST" action="#">
                 <div class="form-row">
-                    <input type="text" name="first_name" placeholder="First Name" required>
-                    <input type="text" name="last_name" placeholder="Last Name" required>
+                    <input type="text" name="first_name" placeholder="<?= __('first_name_placeholder') ?>" required>
+                    <input type="text" name="last_name" placeholder="<?= __('last_name_placeholder') ?>" required>
                 </div>
 
-                <input type="email" name="email" placeholder="Email Address" required>
-                <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+                <input type="email" name="email" placeholder="<?= __('email_placeholder') ?>" required>
+                <textarea name="message" rows="4" placeholder="<?= __('message_placeholder') ?>" required></textarea>
 
                 <button type="submit" class="btn btn-primary">
-                    Send Message
+                    <?= __('send_message_btn') ?>
                 </button>
             </form>
         </div>

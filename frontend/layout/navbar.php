@@ -16,31 +16,23 @@ require_once __DIR__ . '/../../backend/config/languages.php';
         z-index: 100;
     }
 
-    .logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+    .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--secondary);
+    font-weight: 800;
+    font-size: 1.5rem;
+}
 
-    .logo-square {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-        font-size: 20px;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 16px;
-        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-    }
+.logo-link img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+}
 
-    .logo-text {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--secondary);
-    }
 
     .nav-links {
         display: flex;
@@ -112,14 +104,16 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 
 <nav>
     <div class="logo">
-        <div class="logo-square">CT</div>
-        <div class="logo-text">CargoConnect</div>
+        <a href="/cargo-project/index.php" class="logo-link">
+            <img src="/cargo-project/frontend/public/logo.jpg" alt="CargoConnect Logo">
+            <span>CargoConnect</span>
+        </a>
     </div>
     
     <?php if (!isset($simpleNavbar) || !$simpleNavbar): ?>
     <div class="nav-links">
         <a href="/cargo-project/index.php#features"><?= __('features') ?></a>
-        <a href="/cargo-project/index.php#how-it-works"><?= __('how_it_works') ?></a>
+        <a href="/cargo-project/frontend/public/how_it_works.php"><?= __('how_it_works') ?></a>
         <a href="/cargo-project/frontend/public/about.php"><?= __('about') ?></a>
         <a href="/cargo-project/frontend/public/contact.php"><?= __('contact') ?></a>
     </div>

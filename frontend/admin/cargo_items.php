@@ -38,7 +38,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
                 <span id="pageInfo"></span>
                 <button class="page-btn" id="nextPage">Next</button>
             </div>
-            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+            
         </div>
     </main>
 </div>

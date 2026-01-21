@@ -310,40 +310,44 @@ $txRef = "TX-" . uniqid() . "-" . time();
             }
 
             async function calculatePrice() {
-                const distance = parseFloat(document.getElementById('distance_km').value) || 0;
-                const weight = parseFloat(document.getElementById('weight').value) || 0;
-                const quantity = parseInt(document.getElementById('quantity').value) || 1;
-                const vehicleType = document.getElementById('vehicle_type').value;
-                
-                if (distance <= 0 || weight <= 0) return;
+    const distance = parseFloat(document.getElementById('distance_km').value) || 0;
+    const weight = parseFloat(document.getElementById('weight').value) || 0;
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const vehicleType = document.getElementById('vehicle_type').value;
+    const pickupDate = document.getElementById('pickup_date').value;
 
-                document.getElementById('disp_price').innerText = "<?= __('calculating') ?>";
+    if (distance <= 0 || weight <= 0 || !pickupDate) return;
 
-                try {
-                    const res = await fetch('/cargo-project/backend/api/customer/calculate_price.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            distance_km: distance, 
-                            weight: weight, 
-                            quantity: quantity,
-                            vehicle_type: vehicleType 
-                        })
-                    });
-                    const data = await res.json();
-                    
-                    if (data.success) {
-                        document.getElementById('calculated_price').value = data.price;
-                        document.getElementById('disp_weight').innerText = weight + " kg";
-                        document.getElementById('disp_price').innerText = data.price + " ETB";
-                    } else {
-                        console.error("Price calc error:", data.error);
-                        document.getElementById('disp_price').innerText = "<?= __('error') ?>";
-                    }
-                } catch (err) {
-                    console.error("Price fetch error:", err);
-                }
-            }
+    document.getElementById('disp_price').innerText = "<?= __('calculating') ?>";
+
+    try {
+        const res = await fetch('/cargo-project/backend/api/customer/calculate_price.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                distance_km: distance,
+                weight: weight,
+                quantity: quantity,
+                vehicle_type: vehicleType,
+                pickup_date: pickupDate
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('calculated_price').value = data.price;
+            document.getElementById('disp_weight').innerText = weight + " kg";
+            document.getElementById('disp_price').innerText = data.price + " ETB";
+        } else {
+            console.error(data.error);
+            document.getElementById('disp_price').innerText = "Error";
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById('disp_price').innerText = "Error";
+    }
+}
 
             async function submitRequest() {
                 // 1. Validate Form

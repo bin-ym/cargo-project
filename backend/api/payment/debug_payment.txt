@@ -57,3 +57,5 @@
 [2026-01-15 16:40:42] Mock verification active for: TX-665fa04a-1768491635
 [2026-01-15 16:49:43] Starting verification for TX_REF: TX-671b95b0-1768492173
 [2026-01-15 16:49:43] Mock verification active for: TX-671b95b0-1768492173
+[2026-01-21 12:04:21] Starting verification for TX_REF: TX-8985425f-1768993449
+[2026-01-21 12:04:21] Mock verification active for: TX-8985425f-1768993449

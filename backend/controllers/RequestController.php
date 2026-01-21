@@ -205,7 +205,7 @@ class RequestController {
             }
 
             // 4. Notify Customer
-            $stmtUser = $this->db->prepare("SELECT user_id FROM cargo_requests WHERE id = ?");
+            $stmtUser = $this->db->prepare("SELECT c.user_id FROM cargo_requests r JOIN customers c ON r.customer_id = c.id WHERE r.id = ?");
             $stmtUser->execute([$requestId]);
             $user = $stmtUser->fetch();
 

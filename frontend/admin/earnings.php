@@ -58,7 +58,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
                 </table>
             </div>
         </div>
-            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+            
         </div>
     </main>
 </div>
