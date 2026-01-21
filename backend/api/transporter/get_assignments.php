@@ -14,4 +14,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'transporter') {
 $controller = new RequestController();
 $assignments = $controller->getByTransporterId($_SESSION['user_id']);
 
+foreach ($assignments as &$row) {
+    $row['eid'] = Security::encryptId($row['id']);
+}
+
 echo json_encode(['success' => true, 'data' => $assignments]);

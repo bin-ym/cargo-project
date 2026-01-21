@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../backend/config/session.php';
+require_once __DIR__ . '/../../backend/config/languages.php';
 
 if (isset($_SESSION['user_id'])) {
     $role = $_SESSION['role'];
@@ -14,11 +15,11 @@ $simpleNavbar = true;
 require_once __DIR__ . '/../layout/navbar.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $_SESSION['lang'] ?? 'en' ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register • CargoConnect</title>
+<title><?= __('register') ?> • <?= __('app_name') ?></title>
 
 <script src="https://unpkg.com/feather-icons"></script>
 <link rel="stylesheet" href="../css/public.css">
@@ -172,44 +173,44 @@ require_once __DIR__ . '/../layout/navbar.php';
 
 <section class="register-hero">
     <div class="register-card">
-        <div class="register-header">Create Your Account</div>
+        <div class="register-header"><?= __('create_your_account') ?></div>
 
         <form id="registerForm" enctype="multipart/form-data">
             <div class="register-grid">
                 <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" placeholder="Enter your full name" required>
+                    <label><?= __('full_name') ?></label>
+                    <input type="text" name="name" placeholder="<?= __('enter_full_name') ?>" required>
                 </div>
                 <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" name="username" placeholder="Choose a username" required>
+                    <label><?= __('username') ?></label>
+                    <input type="text" name="username" placeholder="<?= __('choose_username') ?>" required>
                 </div>
                 <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" name="email" placeholder="you@example.com" required>
+                    <label><?= __('email') ?></label>
+                    <input type="email" name="email" placeholder="<?= __('email_placeholder') ?>" required>
                 </div>
                 <div class="input-group">
-                    <label>Phone Number</label>
-                    <input type="tel" name="phone" placeholder="+251 9xx xxx xxx" required>
+                    <label><?= __('phone_number') ?></label>
+                    <input type="tel" name="phone" placeholder="<?= __('phone_placeholder') ?>" required>
                 </div>
                 <div class="input-group password-wrapper">
-                    <label>Password</label>
-                    <input type="password" id="regPassword" name="password" placeholder="Enter password" required minlength="6">
+                    <label><?= __('password') ?></label>
+                    <input type="password" id="regPassword" name="password" placeholder="<?= __('enter_password') ?>" required minlength="6">
                     <span onclick="togglePassword('regPassword')"><i data-feather="eye"></i></span>
                     <div class="password-strength" id="passwordStrength"></div>
                 </div>
                 <div class="input-group password-wrapper">
-                    <label>Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm password" required minlength="6">
+                    <label><?= __('confirm_password') ?></label>
+                    <input type="password" id="confirmPassword" placeholder="<?= __('confirm_password_placeholder') ?>" required minlength="6">
                     <span onclick="togglePassword('confirmPassword')"><i data-feather="eye"></i></span>
                 </div>
 
                 <div class="input-group full-width">
-                    <label>Role</label>
+                    <label><?= __('role') ?></label>
                     <select name="role" id="roleSelect" required onchange="toggleFields()">
-                        <option value="">Select Role</option>
-                        <option value="customer">Customer</option>
-                        <option value="transporter">Transporter</option>
+                        <option value=""><?= __('select_role') ?></option>
+                        <option value="customer"><?= __('customer') ?></option>
+                        <option value="transporter"><?= __('transporter') ?></option>
                     </select>
                 </div>
             </div>
@@ -218,12 +219,12 @@ require_once __DIR__ . '/../layout/navbar.php';
             <div id="customerFields" class="full-width hidden">
                 <div class="register-grid">
                     <div class="input-group">
-                        <label>Address</label>
-                        <input type="text" name="address" placeholder="Enter your address">
+                        <label><?= __('address') ?></label>
+                        <input type="text" name="address" placeholder="<?= __('enter_address') ?>">
                     </div>
                     <div class="input-group">
-                        <label>City</label>
-                        <input type="text" name="city" placeholder="Enter your city">
+                        <label><?= __('city') ?></label>
+                        <input type="text" name="city" placeholder="<?= __('enter_city') ?>">
                     </div>
                 </div>
             </div>
@@ -231,20 +232,20 @@ require_once __DIR__ . '/../layout/navbar.php';
             <!-- Transporter Fields -->
             <div id="transporterFields" class="full-width hidden">
                 <div class="input-group">
-                    <label>License Copy</label>
+                    <label><?= __('license_copy') ?></label>
                     <input type="file" name="license_copy" accept="image/*,.pdf">
                 </div>
             </div>
 
             <div class="full-width">
-                <button class="btn" type="submit">Create Account</button>
+                <button class="btn" type="submit"><?= __('create_account') ?></button>
             </div>
 
             <div id="registerMessage"></div>
         </form>
 
         <div class="full-width" style="text-align:center; margin-top:10px;">
-            Already have an account? <a href="login.php">Sign in</a>
+            <?= __('already_have_account') ?> <a href="login.php"><?= __('sign_in') ?></a>
         </div>
     </div>
 </section>
@@ -260,6 +261,17 @@ const roleSelect = document.getElementById('roleSelect');
 const customerFields = document.getElementById('customerFields');
 const transporterFields = document.getElementById('transporterFields');
 const registerMessage = document.getElementById('registerMessage');
+
+// Translations for JS
+const translations = {
+    too_short: "<?= __('too_short') ?>",
+    medium_strength: "<?= __('medium_strength') ?>",
+    strong_password: "<?= __('strong_password') ?>",
+    passwords_not_match: "<?= __('passwords_not_match') ?>",
+    creating: "<?= __('creating') ?>",
+    create_account: "<?= __('create_account') ?>",
+    server_error: "<?= __('server_error_try_again') ?>"
+};
 
 function togglePassword(id) {
     const input = document.getElementById(id);
@@ -278,9 +290,9 @@ function toggleFields() {
 regPassword.addEventListener('input', () => {
     const v = regPassword.value;
     passwordStrength.textContent =
-        v.length < 6 ? 'Too short' :
-        v.length < 10 ? 'Medium strength' :
-        'Strong password';
+        v.length < 6 ? translations.too_short :
+        v.length < 10 ? translations.medium_strength :
+        translations.strong_password;
 });
 
 // Form Submission
@@ -289,13 +301,13 @@ registerForm.addEventListener('submit', async (e) => {
 
     if (regPassword.value !== confirmPassword.value) {
         registerMessage.style.color = 'red';
-        registerMessage.textContent = 'Passwords do not match';
+        registerMessage.textContent = translations.passwords_not_match;
         return;
     }
 
     const btn = registerForm.querySelector('button');
     btn.disabled = true;
-    btn.textContent = 'Creating...';
+    btn.textContent = translations.creating;
     registerMessage.textContent = '';
 
     try {
@@ -316,11 +328,11 @@ registerForm.addEventListener('submit', async (e) => {
 
     } catch (err) {
         registerMessage.style.color = 'red';
-        registerMessage.textContent = 'Server error, please try again.';
+        registerMessage.textContent = translations.server_error;
     }
 
     btn.disabled = false;
-    btn.textContent = 'Create Account';
+    btn.textContent = translations.create_account;
 });
 </script>
 

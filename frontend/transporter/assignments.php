@@ -94,7 +94,7 @@ function renderTable(data) {
             <td>${row.pickup_date}</td>
             <td><span class="badge ${statusClass}">${row.shipment_status}</span></td>
             <td class="row-action">
-                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view"><?= __('view_details') ?></a>
+                <a href="assignment_details.php?id=${row.eid}" class="btn-small btn-view"><?= __('view_details') ?></a>
             </td>
         </tr>`;
     });

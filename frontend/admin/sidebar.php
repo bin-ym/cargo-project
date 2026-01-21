@@ -3,9 +3,11 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 ?>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="logo">CT</div>
-        <h3><?= __('admin') ?></h3>
+    <div class="logo">
+        <img src="/cargo-project/frontend/public/logo.jpg" alt="Logo">
     </div>
+    <h3><?= __('admin') ?></h3>
+</div>
     <nav>
         <?php
         $currentPage = basename($_SERVER['PHP_SELF']);
@@ -62,6 +64,24 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 </aside>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdowns = document.querySelectorAll('.menu-dropdown');
+    
+    dropdowns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const group = btn.parentElement;
+            group.classList.toggle('open');
+            
+            // Close other dropdowns (optional, but good for UX)
+            document.querySelectorAll('.menu-group').forEach(otherGroup => {
+                if (otherGroup !== group) {
+                    otherGroup.classList.remove('open');
+                }
+            });
+        });
+    });
+});
+
 async function setLanguage(lang) {
     try {
         const res = await fetch('/cargo-project/backend/api/auth/set_language.php', {

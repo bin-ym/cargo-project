@@ -4,6 +4,9 @@ require_once __DIR__ . '/../../backend/config/session.php';
 require_once __DIR__ . '/../layout/header_admin.php';
 
 $requestId = $_GET['id'] ?? 0;
+if ($requestId && !is_numeric($requestId)) {
+    $requestId = Security::decryptId($requestId);
+}
 ?>
 
 <div class="dashboard">

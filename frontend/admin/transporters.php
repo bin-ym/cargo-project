@@ -238,7 +238,7 @@ let currentPage = 1;
 let filteredData = [];
 
 // API URL
-const API_URL = '/cargo-project/backend/api/transporters/index.php';
+const API_URL = '/cargo-project/backend/api/transporter/index.php';
 
 async function fetchTransporters() {
     try {
@@ -280,7 +280,7 @@ function renderTable() {
             <td>${row.phone}</td>
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
-                <a href="transporter_view.php?id=${row.id}" class="btn-small btn-view" style="margin-right:5px;">
+                <a href="transporter_view.php?id=${row.eid}" class="btn-small btn-view" style="margin-right:5px;">
                     <i data-feather="eye"></i> <?= __('view') ?>
                 </a>
                 <button onclick="editTransporter(${row.id})" class="btn-small btn-view" style="margin-right:5px;"><?= __('edit') ?></button>

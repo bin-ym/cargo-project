@@ -146,7 +146,7 @@ function renderTable() {
         <tr>
             <td>#${row.id}</td>
             <td>${row.item_name}</td>
-            <td><a href="order_items.php?id=${row.request_id}">#${row.request_id}</a></td>
+            <td><a href="order_items.php?id=${row.request_eid}">#${row.request_id}</a></td>
             <td>${row.weight}</td>
             <td>${row.category}</td>
             <td>${row.description || '-'}</td>

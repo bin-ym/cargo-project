@@ -26,7 +26,8 @@ try {
         'completed' => 0
     ];
     
-    foreach ($requests as $req) {
+    foreach ($requests as &$req) {
+        $req['eid'] = Security::encryptId($req['id']);
         if ($req['status'] === 'pending') {
             $counts['pending']++;
         } elseif ($req['status'] === 'approved' && $req['shipment_status'] !== 'in-transit' && $req['shipment_status'] !== 'delivered') {

@@ -24,20 +24,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 }
 
 /* ---------------- PRICE CALCULATION ---------------- */
-function calculatePrice(float $distance, float $weight, int $quantity, string $vehicleType): float {
-    $baseRate = 150; 
-    
+function calculatePrice(float $distance, float $weight, int $quantity, string $vehicleType): float
+{
+    $baseRate = 150;
     $vehicleRates = [
-        'pickup' => 1.0,
-        'isuzu' => 1.5,
+        'pickup'  => 1.0,
+        'isuzu'   => 1.5,
         'trailer' => 2.5
     ];
-
     $vehicleFactor = $vehicleRates[$vehicleType] ?? 1.0;
-    $scalingFactor = 0.2; 
-    
+    $scalingFactor = 0.2;
+
     $variableCost = ($distance * $weight * $quantity * $vehicleFactor * $scalingFactor);
-    
     return $baseRate + $variableCost;
 }
 
@@ -61,11 +59,10 @@ try {
     }
 
     /* ---------------- ITEM VALIDATION ---------------- */
-    $item = $data['items'][0];
-
-    $distance = isset($data['distance_km']) ? (float)$data['distance_km'] : 0;
-    $weight   = isset($item['weight']) ? (float)$item['weight'] : 0;
-    $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+    $item        = $data['items'][0];
+    $distance    = isset($data['distance_km']) ? (float)$data['distance_km'] : 0;
+    $weight      = isset($item['weight']) ? (float)$item['weight'] : 0;
+    $quantity    = isset($item['quantity']) ? (int)$item['quantity'] : 0;
     $vehicleType = isset($data['vehicle_type']) ? $data['vehicle_type'] : 'pickup';
 
     if ($distance <= 0 || $weight <= 0 || $quantity <= 0) {
@@ -73,12 +70,10 @@ try {
     }
 
     /* ---------------- PRICE (BACKEND TRUTH) ---------------- */
-    $price = calculatePrice($distance, $weight, $quantity, $vehicleType);
-
+    $price      = calculatePrice($distance, $weight, $quantity, $vehicleType);
     if (!is_numeric($price) || $price <= 0) {
         throw new Exception("Invalid calculated price");
     }
-
     $finalPrice = number_format((float)$price, 2, '.', '');
 
     /* ---------------- DATABASE ---------------- */
@@ -93,7 +88,7 @@ try {
     $custId = $stmtCust->fetchColumn();
 
     if (!$custId) {
-        // Auto-create customer record if missing (robustness)
+        // Auto-create customer record if missing
         $stmtCreate = $db->prepare("INSERT INTO customers (user_id, address, city) VALUES (?, '', '')");
         $stmtCreate->execute([$_SESSION['user_id']]);
         $custId = $db->lastInsertId();
@@ -138,9 +133,14 @@ try {
 
     /* ---------------- ITEMS ---------------- */
     $stmtItem = $db->prepare("
-        INSERT INTO cargo_items
-        (request_id, item_name, quantity, weight, category, description)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO cargo_items (
+            request_id,
+            item_name,
+            quantity,
+            weight,
+            category,
+            description
+        ) VALUES (?, ?, ?, ?, ?, ?)
     ");
 
     foreach ($data['items'] as $it) {
@@ -165,25 +165,25 @@ try {
         throw new Exception("User not found in database");
     }
 
-    $email    = $user['email'];
-    $fullName = $user['full_name'];
-
-    $_SESSION['email'] = $email;
+    $email     = $user['email'];
+    $fullName  = $user['full_name'];
+    $_SESSION['email']     = $email;
     $_SESSION['full_name'] = $fullName;
 
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         throw new Exception("Invalid email address in database. Please update your profile.");
     }
 
-    $parts = explode(' ', $fullName);
+    $parts     = explode(' ', $fullName);
     $firstName = $parts[0] ?? 'Customer';
     $lastName  = implode(' ', array_slice($parts, 1)) ?: 'User';
 
     /* ---------------- CHAPA ---------------- */
     $chapa = new Chapa($_ENV['CHAPA_SECRET_KEY']);
-
     $postData = new PostData();
-    $postData->amount($finalPrice)
+
+    $postData
+        ->amount($finalPrice)
         ->currency('ETB')
         ->email($email)
         ->firstname($firstName)
@@ -199,12 +199,12 @@ try {
     // Debug Logging
     $logFile = __DIR__ . '/debug_payment.txt';
     $debugData = [
-        'timestamp' => date('Y-m-d H:i:s'),
-        'tx_ref' => $txRef,
-        'amount' => $finalPrice,
-        'email' => $email,
+        'timestamp'    => date('Y-m-d H:i:s'),
+        'tx_ref'       => $txRef,
+        'amount'       => $finalPrice,
+        'email'        => $email,
         'callback_url' => 'http://localhost/cargo-project/backend/api/payment/callback.php',
-        'return_url' => "http://localhost/cargo-project/frontend/customer/dashboard.php?tx_ref=$txRef"
+        'return_url'   => "http://localhost/cargo-project/frontend/customer/dashboard.php?tx_ref=$txRef"
     ];
     file_put_contents($logFile, "INIT PAYLOAD: " . json_encode($debugData) . "\n", FILE_APPEND);
 
@@ -213,10 +213,8 @@ try {
     if ($response->getStatus() !== 'success') {
         $msg = $response->getMessage();
         $errorDetail = '';
-        
-        // Check if message is an array (validation errors)
+
         if (is_array($msg)) {
-            // Check for specific email error
             if (isset($msg['email'])) {
                 throw new Exception("Payment provider rejected your email address. Please update your profile with a valid email.");
             }
@@ -224,15 +222,16 @@ try {
         } else {
             $errorDetail = (string)$msg;
         }
-        
+
         throw new Exception("Chapa init failed: " . $errorDetail);
     }
 
     echo json_encode([
-        'success' => true,
-        'request_id' => $requestId,
-        'price' => $finalPrice,
-        'payment_url' => $response->getData()['checkout_url']
+        'success'      => true,
+        'request_id'   => $requestId,
+        'request_eid'  => Security::encryptId($requestId),
+        'price'        => $finalPrice,
+        'payment_url'  => $response->getData()['checkout_url']
     ]);
 
 } catch (Throwable $e) {
@@ -240,10 +239,15 @@ try {
         $db->rollBack();
     }
 
-    file_put_contents(__DIR__ . '/error_log.txt', date('[Y-m-d H:i:s] ') . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", FILE_APPEND);
+    file_put_contents(
+        __DIR__ . '/error_log.txt',
+        date('[Y-m-d H:i:s] ') . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n",
+        FILE_APPEND
+    );
+
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error'   => $e->getMessage()
     ]);
 }

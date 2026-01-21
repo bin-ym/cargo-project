@@ -8,6 +8,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 $transporterId = $_GET['id'] ?? null;
+if ($transporterId && !is_numeric($transporterId)) {
+    $transporterId = Security::decryptId($transporterId);
+}
 if (!$transporterId) {
     header("Location: transporters.php");
     exit();
@@ -94,7 +97,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
 
 <script>
 const transporterId = <?= json_encode($transporterId) ?>;
-const API_URL = `/cargo-project/backend/api/transporters/index.php?id=${transporterId}&details=true`;
+const API_URL = `/cargo-project/backend/api/transporter/index.php?id=${transporterId}&details=true`;
 
 async function fetchDetails() {
     try {

@@ -202,7 +202,7 @@ let rowsPerPage = 5;
 let currentPage = 1;
 
 // API URL
-const API_URL = '/cargo-project/backend/api/customers/index.php';
+const API_URL = '/cargo-project/backend/api/customer/index.php';
 
 // Fetch Customers
 async function fetchCustomers() {

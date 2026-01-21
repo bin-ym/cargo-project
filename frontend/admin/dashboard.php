@@ -99,7 +99,7 @@ async function loadDashboardStats() {
         document.getElementById('approvedRequests').textContent = data.approvedRequests;
         document.getElementById('pendingRequests').textContent = data.pendingRequests;
         document.getElementById('revenue').textContent =
-            '$' + Number(data.revenue).toLocaleString();
+            Number(data.revenue).toLocaleString() + ' ETB';
 
         const activityList = document.getElementById('activityList');
 

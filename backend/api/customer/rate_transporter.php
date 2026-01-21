@@ -20,6 +20,9 @@ try {
     }
     
     $requestId = $data['request_id'];
+    if ($requestId && !is_numeric($requestId)) {
+        $requestId = Security::decryptId($requestId);
+    }
     $rating = (int)$data['rating'];
     $comment = $data['comment'] ?? '';
     

@@ -115,26 +115,15 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
 <style>
 /* Status Cards */
-.status-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-.card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-.card h3 {
-    font-size: 14px;
-    color: #64748b;
-}
-.card p {
-    font-size: 28px;
-    font-weight: 700;
-}
+.status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+.card h3 { font-size: 14px; color: #64748b; margin-bottom: 10px; font-weight: 500; }
+.card p { font-size: 28px; font-weight: 700; color: #0f172a; margin: 0; }
+.card-total { border-left: 4px solid #3b82f6; }
+.card-pending { border-left: 4px solid #f59e0b; }
+.card-approved { border-left: 4px solid #10b981; }
+.card-rejected { border-left: 4px solid #ef4444; }
+.card-completed { border-left: 4px solid #6366f1; }
 
 /* Tabs */
 .table-controls {
@@ -285,7 +274,7 @@ async function buildRow(req) {
 async function buildActions(req) {
     let html = `
         <div class="action-buttons">
-            <a href="track_shipment.php?id=${req.id}" class="btn-small" style="background:#3b82f6;">
+            <a href="track_shipment.php?id=${req.eid}" class="btn-small" style="background:#3b82f6;">
                 <?= __('track') ?>
             </a>
     `;

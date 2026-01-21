@@ -8,6 +8,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'transporter') {
 require_once __DIR__ . '/../layout/header_transporter.php';
 
 $requestId = $_GET['id'] ?? 0;
+if ($requestId && !is_numeric($requestId)) {
+    $requestId = Security::decryptId($requestId);
+}
 ?>
 
 <!-- Leaflet CSS -->
@@ -82,7 +85,11 @@ $requestId = $_GET['id'] ?? 0;
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-const requestId = <?= $requestId ?>;
+const requestId = '<?= htmlspecialchars($_GET['id'] ?? '') ?>';
+if (!requestId) {
+    alert('Invalid Request ID');
+    window.location.href = 'assignments.php';
+}
 const API_URL = '/cargo-project/backend/api/cargo_items/index.php';
 
 
@@ -205,7 +212,8 @@ async function updateMapWithRoute(data) {
 
             // Car Animation if in-transit
             if (data.shipment_status === 'in-transit') {
-                startCarAnimation(latLngs);
+                const animDuration = Math.min(60, Math.max(15, duration / 60));
+                startCarAnimation(latLngs, animDuration);
             }
         } else {
             // Fallback to straight line
@@ -261,7 +269,7 @@ function renderTable(data) {
 let carMarker = null;
 let animationFrame = null;
 
-function startCarAnimation(latLngs) {
+function startCarAnimation(latLngs, durationSeconds) {
     if (carMarker) map.removeLayer(carMarker);
     if (animationFrame) cancelAnimationFrame(animationFrame);
 
@@ -277,7 +285,13 @@ function startCarAnimation(latLngs) {
 
     let step = 0;
     const totalSteps = latLngs.length;
-    const speed = 2; 
+    
+    // We want the animation to take 'durationSeconds'
+    // requestAnimationFrame runs at ~60fps
+    // totalFrames = durationSeconds * 60
+    // stepIncrement = totalSteps / totalFrames
+    const totalFrames = (durationSeconds || 30) * 60; 
+    const stepIncrement = totalSteps / totalFrames;
 
     function animate() {
         if (step >= totalSteps) {
@@ -296,7 +310,7 @@ function startCarAnimation(latLngs) {
             }
         }
 
-        step += 0.1 * speed;
+        step += stepIncrement;
         animationFrame = requestAnimationFrame(animate);
     }
 

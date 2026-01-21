@@ -1,5 +1,8 @@
 <?php
 // backend/config/session.php
+require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/../lib/Security.php';
+
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

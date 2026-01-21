@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'manager', 'finance', 'transporter', 'customer') NOT NULL,
+    role ENUM('admin', 'transporter', 'customer') NOT NULL,
     must_change_password BOOLEAN DEFAULT FALSE,
     is_verified TINYINT(1) DEFAULT 0,
     verification_token VARCHAR(255),
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS cargo_requests (
     rejection_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
 -- Cargo Items
@@ -130,11 +130,6 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- Insert sample data for testing (only if tables are empty)
 -- Note: Passwords are hashed, using a placeholder for now or assuming the provided ones work.
-
--- 1. Insert Users (if not exist)
-INSERT INTO users (username, email, phone, full_name, password, role)
-SELECT * FROM (SELECT 'admin', 'admin@cargo.com', '0911223344', 'System Admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin') AS tmp
-WHERE NOT EXISTS (SELECT username FROM users WHERE username = 'admin') LIMIT 1;
 
 INSERT INTO users (username, email, phone, full_name, password, role)
 SELECT * FROM (SELECT 'amanuel', 'amanuel@debark.edu.et', '094011116', 'Amanuel Asmare', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'transporter') AS tmp

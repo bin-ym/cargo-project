@@ -118,7 +118,7 @@ async function fetchNotifications() {
 
             list.innerHTML += `
                 <div class="notification-item ${n.is_read == 0 ? 'unread' : ''}"
-                     onclick="openNotification(${n.id}, ${n.related_request_id || 'null'})">
+                     onclick="openNotification(${n.id}, '${n.related_request_eid || ''}')">
 
                     <div class="icon-box ${n.type || 'info'}">
                         <i data-feather="${iconFor(n.type)}"></i>

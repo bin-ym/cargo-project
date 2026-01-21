@@ -15,6 +15,12 @@ try {
     $stmt = $db->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
     $stmt->execute([$_SESSION['user_id']]);
     $notifications = $stmt->fetchAll();
+    
+    foreach ($notifications as &$n) {
+        if ($n['related_request_id']) {
+            $n['related_request_eid'] = Security::encryptId($n['related_request_id']);
+        }
+    }
 
     echo json_encode(['success' => true, 'data' => $notifications]);
 } catch (Exception $e) {

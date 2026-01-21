@@ -9,6 +9,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 require_once __DIR__ . '/../layout/header_customer.php';
 
 $requestId = $_GET['id'] ?? 0;
+if ($requestId && !is_numeric($requestId)) {
+    $requestId = Security::decryptId($requestId);
+}
 ?>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -151,7 +154,11 @@ $requestId = $_GET['id'] ?? 0;
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-const requestId = <?= (int)$requestId ?>;
+const requestId = '<?= htmlspecialchars($_GET['id'] ?? '') ?>';
+if (!requestId) {
+    alert('Invalid Request ID');
+    window.location.href = 'my_requests.php';
+}
 let map;
 
 function initMap() {
@@ -233,7 +240,8 @@ async function drawRoute(d) {
 
         // Car Animation if in-transit
         if (d.shipment_status === 'in-transit') {
-            startCarAnimation(points);
+            const animDuration = Math.min(60, Math.max(15, duration / 60));
+            startCarAnimation(points, animDuration);
         }
     }
 }
@@ -241,7 +249,7 @@ async function drawRoute(d) {
 let carMarker = null;
 let animationFrame = null;
 
-function startCarAnimation(latLngs) {
+function startCarAnimation(latLngs, durationSeconds) {
     if (carMarker) map.removeLayer(carMarker);
     if (animationFrame) cancelAnimationFrame(animationFrame);
 
@@ -257,7 +265,9 @@ function startCarAnimation(latLngs) {
 
     let step = 0;
     const totalSteps = latLngs.length;
-    const speed = 2; 
+    
+    const totalFrames = (durationSeconds || 30) * 60;
+    const stepIncrement = totalSteps / totalFrames;
 
     function animate() {
         if (step >= totalSteps) {
@@ -276,7 +286,7 @@ function startCarAnimation(latLngs) {
             }
         }
 
-        step += 0.1 * speed;
+        step += stepIncrement;
         animationFrame = requestAnimationFrame(animate);
     }
 

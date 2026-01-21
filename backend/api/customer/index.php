@@ -1,5 +1,6 @@
 <?php
 // backend/api/customers/index.php
+require_once __DIR__ . '/../../config/session.php';
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -13,10 +14,20 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     if (isset($_GET['id'])) {
-        $customer = $controller->getById($_GET['id']);
+        $id = $_GET['id'];
+        if (!is_numeric($id)) {
+            $id = Security::decryptId($id);
+        }
+        $customer = $controller->getById($id);
+        if ($customer) {
+            $customer['eid'] = Security::encryptId($customer['id']);
+        }
         echo json_encode($customer ? ["success" => true, "data" => $customer] : ["success" => false, "error" => "Not found"]);
     } else {
         $customers = $controller->getAll();
+        foreach ($customers as &$c) {
+            $c['eid'] = Security::encryptId($c['id']);
+        }
         echo json_encode(["success" => true, "data" => $customers]);
     }
 } elseif ($method === 'POST') {
@@ -30,14 +41,22 @@ if ($method === 'GET') {
         echo json_encode(["success" => false, "error" => "Failed to create customer"]);
     }
 } elseif ($method === 'PUT') {
+    $id = $_GET['id'] ?? null;
+    if ($id && !is_numeric($id)) {
+        $id = Security::decryptId($id);
+    }
     $data = json_decode(file_get_contents("php://input"), true);
-    if (isset($_GET['id']) && $controller->update($_GET['id'], $data)) {
+    if ($id && $controller->update($id, $data)) {
         echo json_encode(["success" => true, "message" => "Customer updated"]);
     } else {
         echo json_encode(["success" => false, "error" => "Failed to update customer"]);
     }
 } elseif ($method === 'DELETE') {
-    if (isset($_GET['id']) && $controller->delete($_GET['id'])) {
+    $id = $_GET['id'] ?? null;
+    if ($id && !is_numeric($id)) {
+        $id = Security::decryptId($id);
+    }
+    if ($id && $controller->delete($id)) {
         echo json_encode(["success" => true, "message" => "Customer deleted"]);
     } else {
         echo json_encode(["success" => false, "error" => "Failed to delete customer"]);

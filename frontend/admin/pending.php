@@ -97,7 +97,7 @@ function renderTable() {
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
             <td class="row-action">
-                <a href="order_items.php?id=${row.id}" class="btn-small btn-view">View Details</a>
+                <a href="order_items.php?id=${row.eid}" class="btn-small btn-view">View Details</a>
             </td>
         </tr>`;
     });

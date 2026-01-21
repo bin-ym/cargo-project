@@ -1,0 +1,11 @@
+vendor/
+node_modules/
+.git/
+.env
+*.log
+*.txt
+.antigravity/
+.gemini/
+docker-compose.yml
+Dockerfile
+.dockerignore

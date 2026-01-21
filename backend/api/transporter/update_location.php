@@ -14,6 +14,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'transporter') {
 
 $data = json_decode(file_get_contents('php://input'), true);
 $requestId = $data['request_id'] ?? null;
+if ($requestId && !is_numeric($requestId)) {
+    $requestId = Security::decryptId($requestId);
+}
 $lat = $data['lat'] ?? null;
 $lng = $data['lng'] ?? null;
 
