@@ -74,23 +74,17 @@ $txRef = "TX-" . uniqid() . "-" . time();
                             </div>
                             
                             <h4 style="margin: 30px 0 15px; color: #0f172a;"><?= __('cargo_items') ?></h4>
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('item_name') ?></label>
-                                <input type="text" id="item_name" placeholder="<?= __('electronics_placeholder') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('quantity') ?></label>
-                                    <input type="number" id="quantity" value="1" min="1" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('weight_kg') ?></label>
-                                    <input type="number" id="weight" placeholder="<?= __('weight_placeholder') ?>" min="0.1" step="0.1" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                                </div>
-                            </div>
                             
-                            <!-- Vehicle Type Selection -->
-                            <div style="margin-bottom: 20px;">
+                            <div id="items-container">
+                                <!-- Items will be added here dynamically -->
+                            </div>
+
+                            <button type="button" onclick="addItem()" class="btn btn-secondary" style="margin-bottom: 20px; width: 100%; border: 1px dashed #cbd5e1; color: #64748b;">
+                                + <?= __('add_item') ?? 'Add Item' ?>
+                            </button>
+
+                            <!-- Vehicle Type Selection (Global) -->
+                            <div style="margin-bottom: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('vehicle_type') ?></label>
                                 <select id="vehicle_type" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                                     <option value="pickup"><?= __('pickup_small') ?></option>
@@ -99,20 +93,45 @@ $txRef = "TX-" . uniqid() . "-" . time();
                                 </select>
                             </div>
 
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('category') ?></label>
-                                <select id="category" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                    <option value="Electronics"><?= __('electronics') ?></option>
-                                    <option value="Furniture"><?= __('furniture') ?></option>
-                                    <option value="Hardware"><?= __('hardware') ?></option>
-                                    <option value="Other"><?= __('other') ?></option>
-                                </select>
-                            </div>
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('description') ?></label>
-                                <textarea id="description" rows="3" placeholder="<?= __('additional_details') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
-                            </div>
-                        </form>
+                            <template id="item-template">
+                                <div class="cargo-item" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; position: relative;">
+                                    <button type="button" onclick="removeItem(this)" style="position: absolute; right: 10px; top: 10px; border: none; background: none; color: #ef4444; cursor: pointer;">
+                                        <i data-feather="trash-2" style="width: 18px; height: 18px;"></i>
+                                    </button>
+                                    
+                                    <div style="margin-bottom: 15px; padding-right: 30px;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #334155;"><?= __('item_name') ?></label>
+                                        <input type="text" name="item_name[]" placeholder="<?= __('electronics_placeholder') ?>" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;" required>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #334155;"><?= __('quantity') ?></label>
+                                            <input type="number" name="quantity[]" value="1" min="1" oninput="calculatePrice()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;" required>
+                                        </div>
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #334155;"><?= __('weight_kg') ?></label>
+                                            <input type="number" name="weight[]" placeholder="0.0" min="0.1" step="0.1" oninput="calculatePrice()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;" required>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #334155;"><?= __('category') ?></label>
+                                        <select name="category[]" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                            <option value="Electronics"><?= __('electronics') ?></option>
+                                            <option value="Furniture"><?= __('furniture') ?></option>
+                                            <option value="Hardware"><?= __('hardware') ?></option>
+                                            <option value="Other"><?= __('other') ?></option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #334155;"><?= __('description') ?></label>
+                                        <textarea name="description[]" rows="2" placeholder="<?= __('additional_details') ?>" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;"></textarea>
+                                    </div>
+                                </div>
+                            </template>
+
                     </div>
 
                     <!-- Right: Map & Price -->
@@ -309,54 +328,123 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 }
             }
 
+            /* ITEM MANAGEMENT */
+            function addItem() {
+                const container = document.getElementById('items-container');
+                const template = document.getElementById('item-template');
+                const clone = template.content.cloneNode(true);
+                container.appendChild(clone);
+                calculatePrice();
+            }
+
+            function removeItem(btn) {
+                const item = btn.closest('.cargo-item');
+                // Ensure at least one item remains? Or allow empty?
+                // Better to allow empty but validate on submit
+                item.remove();
+                calculatePrice();
+            }
+
             async function calculatePrice() {
-    const distance = parseFloat(document.getElementById('distance_km').value) || 0;
-    const weight = parseFloat(document.getElementById('weight').value) || 0;
-    const quantity = parseInt(document.getElementById('quantity').value) || 1;
-    const vehicleType = document.getElementById('vehicle_type').value;
-    const pickupDate = document.getElementById('pickup_date').value;
+                const distance = parseFloat(document.getElementById('distance_km').value) || 0;
+                const vehicleType = document.getElementById('vehicle_type').value;
+                const pickupDate = document.getElementById('pickup_date').value;
 
-    if (distance <= 0 || weight <= 0 || !pickupDate) return;
+                // Gather items
+                const items = [];
+                const itemDivs = document.querySelectorAll('.cargo-item');
+                let totalWeight = 0;
 
-    document.getElementById('disp_price').innerText = "<?= __('calculating') ?>";
+                itemDivs.forEach(div => {
+                    const q = parseInt(div.querySelector('input[name="quantity[]"]').value) || 0;
+                    const w = parseFloat(div.querySelector('input[name="weight[]"]').value) || 0;
+                    if (q > 0 && w > 0) {
+                        items.push({ quantity: q, weight: w });
+                        totalWeight += (q * w);
+                    }
+                });
 
-    try {
-        const res = await fetch('/cargo-project/backend/api/customer/calculate_price.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                distance_km: distance,
-                weight: weight,
-                quantity: quantity,
-                vehicle_type: vehicleType,
-                pickup_date: pickupDate
-            })
-        });
+                if (distance <= 0 || items.length === 0 || !pickupDate) {
+                     document.getElementById('disp_price').innerText = "0 ETB";
+                     document.getElementById('calculated_price').value = 0;
+                     return;
+                }
 
-        const data = await res.json();
+                document.getElementById('disp_price').innerText = "<?= __('calculating') ?>";
+                document.getElementById('disp_weight').innerText = totalWeight.toFixed(1) + " kg";
 
-        if (data.success) {
-            document.getElementById('calculated_price').value = data.price;
-            document.getElementById('disp_weight').innerText = weight + " kg";
-            document.getElementById('disp_price').innerText = data.price + " ETB";
-        } else {
-            console.error(data.error);
-            document.getElementById('disp_price').innerText = "Error";
-        }
-    } catch (err) {
-        console.error(err);
-        document.getElementById('disp_price').innerText = "Error";
-    }
-}
+                try {
+                    const res = await fetch('/cargo-project/backend/api/customer/calculate_price.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            distance_km: distance,
+                            vehicle_type: vehicleType,
+                            pickup_date: pickupDate,
+                            items: items // Send array of items
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        document.getElementById('calculated_price').value = data.price;
+                        document.getElementById('disp_price').innerText = data.price + " ETB";
+                    } else {
+                        console.error(data.error);
+                        document.getElementById('disp_price').innerText = "Error";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('disp_price').innerText = "Error";
+                }
+            }
 
             async function submitRequest() {
                 // 1. Validate Form
-                const required = ['pickup_lat', 'dropoff_lat', 'pickup_date', 'item_name', 'weight'];
+                const required = ['pickup_lat', 'dropoff_lat', 'pickup_date'];
                 for (let id of required) {
                     if (!document.getElementById(id).value) {
                         alert("<?= __('fill_all_fields') ?>");
                         return;
                     }
+                }
+
+                // Validate Items
+                const itemDivs = document.querySelectorAll('.cargo-item');
+                if (itemDivs.length === 0) {
+                    alert("Please add at least one item.");
+                    return;
+                }
+
+                const itemsPayload = [];
+                let valid = true;
+
+                itemDivs.forEach(div => {
+                    const name = div.querySelector('input[name="item_name[]"]').value;
+                    const q = div.querySelector('input[name="quantity[]"]').value;
+                    const w = div.querySelector('input[name="weight[]"]').value;
+                    const cat = div.querySelector('select[name="category[]"]').value;
+                    const desc = div.querySelector('textarea[name="description[]"]').value;
+
+                    if (!name || !q || !w) {
+                        valid = false;
+                        div.style.border = "1px solid red";
+                    } else {
+                        div.style.border = "1px solid #e2e8f0";
+                        itemsPayload.push({
+                            item_name: name,
+                            quantity: q,
+                            weight: w,
+                            category: cat,
+                            description: desc
+                        });
+                    }
+                });
+
+                if (!valid) {
+                    alert("Please fill in all item details.");
+                    return;
                 }
 
                 const btn = document.getElementById('submitBtn');
@@ -376,13 +464,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     price: document.getElementById('calculated_price').value,
                     vehicle_type: document.getElementById('vehicle_type').value,
                     pickup_date: document.getElementById('pickup_date').value,
-                    items: [{
-                        item_name: document.getElementById('item_name').value,
-                        quantity: document.getElementById('quantity').value,
-                        weight: document.getElementById('weight').value,
-                        category: document.getElementById('category').value,
-                        description: document.getElementById('description').value
-                    }]
+                    items: itemsPayload
                 };
 
                 try {
@@ -413,6 +495,8 @@ $txRef = "TX-" . uniqid() . "-" . time();
             // Init
             initMap();
             feather.replace();
+            addItem(); // Add initial item
+
         </script>
     </main>
 </div>

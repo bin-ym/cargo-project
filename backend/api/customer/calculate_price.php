@@ -19,30 +19,46 @@ try {
     }
 
     $distance = floatval($input['distance_km'] ?? 0);
-    $weight = floatval($input['weight'] ?? 0);
-    $quantity = intval($input['quantity'] ?? 1);
+    // $weight & $quantity are now in $items, but kept for fallback logic below
     $vehicleType = $input['vehicle_type'] ?? 'pickup';
     $pickupDate = $input['pickup_date'] ?? null;
 
-    if ($distance <= 0 || $weight <= 0 || $quantity <= 0 || !$pickupDate) {
+    if ($distance <= 0 || !$pickupDate) {
         throw new Exception("Invalid input values");
     }
 
     /* ===============================
-       BASE PRICING
+       ITEMS & BASE CALCULATIONS
     ================================*/
+    $items = $input['items'] ?? [];
+    
+    // Fallback for single item (backward compatibility if needed, though frontend sends items now)
+    if (empty($items) && isset($input['weight'])) {
+        $items = [[
+            'weight' => $input['weight'],
+            'quantity' => $input['quantity'] ?? 1
+        ]];
+    }
+
     $baseRate = 150; // ETB
     $vehicleRates = [
         'pickup'  => 1.0,
         'isuzu'   => 1.5,
         'trailer' => 2.5
     ];
-
     $vehicleFactor = $vehicleRates[$vehicleType] ?? 1.0;
     $scalingFactor = 0.2;
 
-    $variableCost = $distance * $weight * $quantity * $vehicleFactor * $scalingFactor;
-    $price = $baseRate + $variableCost;
+    $totalItemCost = 0;
+    foreach ($items as $item) {
+        $w = floatval($item['weight'] ?? 0);
+        $q = intval($item['quantity'] ?? 1);
+        if ($w > 0 && $q > 0) {
+            $totalItemCost += ($distance * $w * $q * $vehicleFactor * $scalingFactor);
+        }
+    }
+
+    $price = $baseRate + $totalItemCost;
 
     /* ===============================
        DATE-BASED PRICE ADJUSTMENT
@@ -51,18 +67,11 @@ try {
     $pickup = new DateTime($pickupDate);
     $daysDiff = (int)$today->diff($pickup)->format('%r%a');
 
-    $dateMultiplier = 1.0;
-
-    if ($daysDiff <= 1) {
-        $dateMultiplier = 1.20; // +20% urgent
-    } elseif ($daysDiff <= 3) {
-        $dateMultiplier = 1.10; // +10%
-    } elseif ($daysDiff <= 7) {
-        $dateMultiplier = 1.00; // normal
-    } elseif ($daysDiff <= 14) {
-        $dateMultiplier = 0.90; // -10%
+    // "High impact" if <= 3 days
+    if ($daysDiff <= 3) {
+        $dateMultiplier = 1.50; // +50%
     } else {
-        $dateMultiplier = 0.80; // -20%
+        $dateMultiplier = 1.00; // Normal
     }
 
     $finalPrice = $price * $dateMultiplier;
@@ -72,7 +81,7 @@ try {
         'price' => round($finalPrice, 2),
         'breakdown' => [
             'base_rate' => $baseRate,
-            'variable_cost' => round($variableCost, 2),
+            'variable_cost' => round($totalItemCost, 2),
             'vehicle_factor' => $vehicleFactor,
             'days_until_pickup' => $daysDiff,
             'date_multiplier' => $dateMultiplier

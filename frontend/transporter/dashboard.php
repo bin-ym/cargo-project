@@ -16,7 +16,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         <header class="topbar">
             <h2><?= __('welcome_transporter') ?><?= htmlspecialchars($_SESSION['username'] ?? 'Transporter'); ?> 👋</h2>
             <div class="user-info">
-                <span><?= ucfirst($_SESSION['username']) ?></span>
+                <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Transporter') ?></span>
             </div>
         </header>
 

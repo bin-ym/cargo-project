@@ -28,9 +28,11 @@ try {
     
     foreach ($requests as &$req) {
         $req['eid'] = Security::encryptId($req['id']);
+        
+        // Count Logic
         if ($req['status'] === 'pending') {
             $counts['pending']++;
-        } elseif ($req['status'] === 'approved' && $req['shipment_status'] !== 'in-transit' && $req['shipment_status'] !== 'delivered') {
+        } elseif ($req['status'] === 'approved' && $req['shipment_status'] !== 'in-transit' && $req['shipment_status'] !== 'delivered' && $req['shipment_status'] !== 'completed') {
             $counts['approved']++;
         }
         
@@ -38,7 +40,7 @@ try {
             $counts['inTransit']++;
         }
         
-        if ($req['shipment_status'] === 'delivered' || $req['status'] === 'completed') {
+        if ($req['shipment_status'] === 'delivered' || $req['shipment_status'] === 'completed' || $req['status'] === 'completed') {
             $counts['completed']++;
         }
     }

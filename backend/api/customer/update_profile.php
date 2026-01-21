@@ -33,6 +33,20 @@ if ($username === '' || $full_name === '' || $phone === '' || $address === '' ||
     exit;
 }
 
+// Regex Validation
+if (!preg_match("/^[a-zA-Z\s]+$/", $full_name)) {
+    echo json_encode(['success' => false, 'error' => 'Full Name must contain only letters']);
+    exit;
+}
+if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
+    echo json_encode(['success' => false, 'error' => 'Username must contain only letters']);
+    exit;
+}
+if (!preg_match("/^(09\d{8}|\+251\d{9})$/", $phone)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid phone format (must start with 09 or +251)']);
+    exit;
+}
+
 $db = Database::getConnection();
 
 try {

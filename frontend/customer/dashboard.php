@@ -17,7 +17,7 @@ require_once __DIR__ . '/../layout/header_customer.php';
         <header class="topbar">
             <h2><?= __('welcome') ?>, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?> 👋</h2>
             <div class="user-info">
-                <span class="badge badge-primary"><?= ucfirst($_SESSION['role']) ?></span>
+                <span class="badge badge-primary"><?= htmlspecialchars($_SESSION['full_name'] ?? 'Customer') ?></span>
             </div>
         </header>
 

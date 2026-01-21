@@ -224,7 +224,8 @@ class RequestController {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
-            return false;
+            // Return error message for debugging
+            return "DB Error: " . $e->getMessage();
         }
     }
 }

@@ -280,24 +280,32 @@ async function buildActions(req) {
     `;
 
     if (req.shipment_status === 'delivered') {
-        const r = await fetch(`/cargo-project/backend/api/customer/check_rating.php?request_id=${req.id}`);
-        const j = await r.json();
+        try {
+            const r = await fetch(
+                `/cargo-project/backend/api/customer/check_rating.php?request_id=${req.eid}`
+            );
+            const j = await r.json();
 
-        if (j.success && !j.hasRated) {
-            html += `
-                <button class="btn-small" style="background:#16a34a"
-                        onclick="openRatingModal(${req.id})">
-                    <?= __('rate') ?>
-                </button>`;
-        } else {
-            html += `<span style="color:#16a34a;font-size:12px;">★ <?= __('rated') ?></span>`;
+            if (j.success && !j.hasRated) {
+                html += `
+                    <button class="btn-small" style="background:#16a34a"
+                            onclick="openRatingModal('${req.eid}')">
+                        <?= __('rate') ?>
+                    </button>`;
+            } else if (j.success && j.hasRated) {
+                html += `
+                    <span style="color:#16a34a;font-size:12px;">
+                        ★ <?= __('rated') ?>
+                    </span>`;
+            }
+        } catch (e) {
+            console.error("Rating check failed", e);
         }
     }
-
     if (req.status === 'pending') {
         html += `
             <button class="btn-small" style="background:#dc2626"
-                    onclick="deleteRequest(${req.id})">
+                    onclick="deleteRequest(${req.eid})">
                 <?= __('delete') ?>
             </button>`;
     }
@@ -314,9 +322,16 @@ function filterByTab(filter, btn) {
     if (filter !== 'all') {
         filtered = allRequests.filter(r => {
             if (filter === 'pending') return r.status === 'pending';
-            if (filter === 'approved') return r.status === 'approved' && !['in-transit','delivered'].includes(r.shipment_status);
-            if (filter === 'in-transit') return r.shipment_status === 'in-transit';
-            if (filter === 'delivered') return r.shipment_status === 'delivered';
+
+            if (filter === 'approved')
+                return r.status === 'approved' &&
+                       !['in-transit', 'delivered', 'completed'].includes(r.shipment_status);
+
+            if (filter === 'in-transit')
+                return r.shipment_status === 'in-transit';
+
+            if (filter === 'delivered')
+                return ['delivered', 'completed'].includes(r.shipment_status) || r.status === 'completed';
         });
     }
 

@@ -188,16 +188,16 @@ function updateTimeline(d) {
     if (d.status === 'approved')
         document.getElementById('step-approved').classList.add('completed');
 
-    if (['assigned','in-transit','delivered'].includes(d.shipment_status)) {
+    if (['assigned','in-transit','delivered','completed'].includes(d.shipment_status)) {
         document.getElementById('step-approved').classList.add('completed');
         document.getElementById('step-assigned').classList.add('completed');
         document.getElementById('transporterName').innerText = d.transporter_name || '<?= __('assigned') ?>';
     }
 
-    if (['in-transit','delivered'].includes(d.shipment_status))
+    if (['in-transit','delivered','completed'].includes(d.shipment_status))
         document.getElementById('step-transit').classList.add('completed');
 
-    if (d.shipment_status === 'delivered')
+    if (['delivered', 'completed'].includes(d.shipment_status) || d.status === 'completed')
         document.getElementById('step-delivered').classList.add('completed');
 }
 

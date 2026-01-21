@@ -24,7 +24,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 }
 
 /* ---------------- PRICE CALCULATION ---------------- */
-function calculatePrice(float $distance, float $weight, int $quantity, string $vehicleType): float
+function calculatePrice(float $distance, array $items, string $vehicleType, string $pickupDate): float
 {
     $baseRate = 150;
     $vehicleRates = [
@@ -35,8 +35,29 @@ function calculatePrice(float $distance, float $weight, int $quantity, string $v
     $vehicleFactor = $vehicleRates[$vehicleType] ?? 1.0;
     $scalingFactor = 0.2;
 
-    $variableCost = ($distance * $weight * $quantity * $vehicleFactor * $scalingFactor);
-    return $baseRate + $variableCost;
+    $totalItemCost = 0;
+    foreach ($items as $item) {
+        $w = floatval($item['weight'] ?? 0);
+        $q = intval($item['quantity'] ?? 1);
+        if ($w > 0 && $q > 0) {
+            $totalItemCost += ($distance * $w * $q * $vehicleFactor * $scalingFactor);
+        }
+    }
+    
+    $price = $baseRate + $totalItemCost;
+
+    // Date Logic
+    $today = new DateTime('today');
+    $pickup = new DateTime($pickupDate);
+    $daysDiff = (int)$today->diff($pickup)->format('%r%a');
+
+    if ($daysDiff <= 3) {
+        $dateMultiplier = 1.50;
+    } else {
+        $dateMultiplier = 1.00;
+    }
+
+    return $price * $dateMultiplier;
 }
 
 try {
@@ -53,24 +74,29 @@ try {
         empty($data['pickup_location']) ||
         empty($data['dropoff_location']) ||
         empty($data['pickup_date']) ||
-        empty($data['items'][0])
+        empty($data['items'])
     ) {
         throw new Exception("Missing required fields");
     }
 
     /* ---------------- ITEM VALIDATION ---------------- */
-    $item        = $data['items'][0];
+    $items       = $data['items'];
     $distance    = isset($data['distance_km']) ? (float)$data['distance_km'] : 0;
-    $weight      = isset($item['weight']) ? (float)$item['weight'] : 0;
-    $quantity    = isset($item['quantity']) ? (int)$item['quantity'] : 0;
     $vehicleType = isset($data['vehicle_type']) ? $data['vehicle_type'] : 'pickup';
+    $pickupDate  = $data['pickup_date'];
 
-    if ($distance <= 0 || $weight <= 0 || $quantity <= 0) {
-        throw new Exception("Invalid distance, weight, or quantity");
+    if ($distance <= 0) {
+         throw new Exception("Invalid distance");
+    }
+    
+    foreach ($items as $it) {
+        if (empty($it['item_name']) || (float)($it['weight'] ?? 0) <= 0) {
+             throw new Exception("Invalid item details");
+        }
     }
 
     /* ---------------- PRICE (BACKEND TRUTH) ---------------- */
-    $price      = calculatePrice($distance, $weight, $quantity, $vehicleType);
+    $price      = calculatePrice($distance, $items, $vehicleType, $pickupDate);
     if (!is_numeric($price) || $price <= 0) {
         throw new Exception("Invalid calculated price");
     }

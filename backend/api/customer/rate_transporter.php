@@ -4,6 +4,8 @@
 require_once __DIR__ . '/../../config/session.php';
 require_once __DIR__ . '/../../config/database.php';
 
+require_once __DIR__ . '/../../lib/Security.php';
+
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
@@ -35,8 +37,9 @@ try {
     
     // Get request and shipment details
     $stmt = $db->prepare("
-        SELECT r.customer_id, s.transporter_id, s.status
+        SELECT r.customer_id, s.transporter_id, s.status, c.user_id as owner_user_id
         FROM cargo_requests r
+        JOIN customers c ON r.customer_id = c.id
         JOIN shipments s ON r.id = s.request_id
         WHERE r.id = ?
     ");
@@ -48,12 +51,12 @@ try {
     }
     
     // Verify customer owns this request
-    if ($request['customer_id'] != $_SESSION['user_id']) {
+    if ($request['owner_user_id'] != $_SESSION['user_id']) {
         throw new Exception("Unauthorized");
     }
     
-    // Verify shipment is delivered
-    if ($request['status'] !== 'delivered') {
+    // Verify shipment is delivered or completed
+    if ($request['status'] !== 'delivered' && $request['status'] !== 'completed') {
         throw new Exception("Can only rate completed deliveries");
     }
     

@@ -133,7 +133,7 @@ async function fetchRequestDetails() {
                 // Hide Start, Show Delivered
                 if(startBtn) startBtn.style.display = 'none';
                 if(deliverBtn) deliverBtn.style.display = 'inline-block';
-            } else if (result.data.shipment_status === 'delivered') {
+            } else if (result.data.shipment_status === 'delivered' || result.data.shipment_status === 'completed') {
                 // Hide Section
                 if (statusSection) statusSection.style.display = 'none';
             }

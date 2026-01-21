@@ -34,9 +34,12 @@ try {
     $db = Database::getConnection();
 
     // Fetch request details
+    // Fetch request details, ensuring it belongs to the logged-in user
     $stmt = $db->prepare("
-        SELECT * FROM cargo_requests 
-        WHERE id = ? AND customer_id = ? AND payment_status = 'pending'
+        SELECT r.* 
+        FROM cargo_requests r
+        JOIN customers c ON r.customer_id = c.id
+        WHERE r.id = ? AND c.user_id = ? AND r.payment_status = 'pending'
     ");
     $stmt->execute([$requestId, $_SESSION['user_id']]);
     $request = $stmt->fetch();
