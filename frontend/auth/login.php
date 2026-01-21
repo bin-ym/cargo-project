@@ -110,13 +110,13 @@ require_once __DIR__ . '/../layout/navbar.php';
 
 <section class="login-hero">
     <div class="login-card">
-        <h1>Welcome Back</h1>
-        <p>Sign in to your CargoConnect account</p>
-        <form id="loginForm">
-            <input type="text" name="username" placeholder="Username or Email" required autofocus>
+        <h1><?= __('welcome_back') ?></h1>
+        <p><?= __('sign_in_to_account') ?></p>
+        <form id="loginForm" method="POST" action="/cargo-project/backend/api/auth/login.php">
+            <input type="text" name="username" placeholder="<?= __('username_or_email') ?>" required autofocus>
             
             <div class="input-password-wrapper" style="position:relative;">
-                <input type="password" name="password" id="password" placeholder="Password" required style="padding-right:40px;">
+                <input type="password" name="password" id="password" placeholder="<?= __('password') ?>" required style="padding-right:40px;">
                 <span onclick="togglePassword('password', 'eye')" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#94a3b8;">
                     <svg id="eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -125,23 +125,26 @@ require_once __DIR__ . '/../layout/navbar.php';
                 </span>
             </div>
             <div style="text-align: right; margin-top: -15px; margin-bottom: 20px;">
-                <a href="forgot_password.php" style="font-size: 0.9rem; color: var(--primary); text-decoration: none;">Forgot Password?</a>
+                <a href="forgot_password.php" style="font-size: 0.9rem; color: var(--primary); text-decoration: none;"><?= __('forgot_password') ?></a>
             </div>
 
-            <button type="submit">Sign In</button>
+            <button type="submit"><?= __('sign_in') ?></button>
         </form>
         <div class="login-links">
-            <p>Don't have an account? <a href="register.php">Create Account</a></p>
+            <p><?= __('dont_have_account') ?> <a href="register.php"><?= __('create_account') ?></a></p>
         </div>
     </div>
 </section>
 
 <script>
-feather.replace();
+if (typeof feather !== 'undefined') {
+    feather.replace();
+}
 
 function togglePassword(inputId, iconId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
     if (input.type === 'password') {
         input.type = 'text';
         icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
@@ -155,6 +158,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const btn = e.target.querySelector('button');
+    const originalBtnText = btn.textContent;
     btn.textContent = 'Signing in...';
     btn.disabled = true;
 
@@ -184,7 +188,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         console.error('Login error:', err);
         alert('Network error: ' + err.message);
     } finally {
-        btn.textContent = 'Sign In';
+        btn.textContent = originalBtnText;
         btn.disabled = false;
     }
 });

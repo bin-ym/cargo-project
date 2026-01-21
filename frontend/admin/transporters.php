@@ -1,5 +1,4 @@
 <?php 
-session_start();
 require_once __DIR__ . '/../../backend/config/session.php';
 require_once __DIR__ . '/../layout/header_admin.php';
 ?>
@@ -7,37 +6,37 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div class="dashboard">
     <main class="main-content">
         <header class="topbar">
-            <h2>Transporters</h2>
+            <h2><?= __('transporters') ?></h2>
             <button class="btn btn-primary" onclick="openModal()">
-                <i data-feather="plus"></i> Add Transporter
+                <i data-feather="plus"></i> <?= __('add_transporter') ?>
             </button>
         </header>
 
         <div class="content">
 
             <div class="table-controls">
-                <input type="text" id="searchInput" placeholder="Search transporters..." class="search-box">
+                <input type="text" id="searchInput" placeholder="<?= __('search_transporters') ?>" class="search-box">
                 
                 <select id="statusFilter" class="filter-select">
-                    <option value="">All Status</option>
-                    <option value="approved">Active</option>
-                    <option value="suspended">Suspended</option>
-                    <option value="pending">Pending</option>
+                    <option value=""><?= __('all_status') ?></option>
+                    <option value="approved"><?= __('active') ?></option>
+                    <option value="suspended"><?= __('suspended') ?></option>
+                    <option value="pending"><?= __('pending') ?></option>
                 </select>
 
-                <button id="exportCSV" class="btn btn-secondary">Export CSV</button>
+                <button id="exportCSV" class="btn btn-secondary"><?= __('export_csv') ?></button>
             </div>
 
             <div class="table-wrapper">
                 <table class="table-modern" id="dataTable">
                     <thead>
                         <tr>
-                            <th>No.</th>
-                            <th>Company/Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('no') ?></th>
+                            <th><?= __('company_name') ?></th>
+                            <th><?= __('email') ?></th>
+                            <th><?= __('phone') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -45,9 +44,9 @@ require_once __DIR__ . '/../layout/header_admin.php';
             </div>
 
             <div class="pagination">
-                <button class="page-btn" id="prevPage">Prev</button>
+                <button class="page-btn" id="prevPage"><?= __('prev') ?></button>
                 <span id="pageInfo"></span>
-                <button class="page-btn" id="nextPage">Next</button>
+                <button class="page-btn" id="nextPage"><?= __('next') ?></button>
             </div>
 
         </div>
@@ -58,60 +57,60 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div id="transporterModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">Add Transporter</h3>
+            <h3 id="modalTitle"><?= __('add_transporter') ?></h3>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <form id="transporterForm">
             <input type="hidden" id="transporterId">
             
             <div class="form-group">
-                <label>Full Name / Company</label>
+                <label><?= __('full_name_company') ?></label>
                 <input type="text" id="name" required>
             </div>
             
             <div class="form-group">
-                <label>Email</label>
+                <label><?= __('email') ?></label>
                 <input type="email" id="email" required>
             </div>
 
             <div class="form-group">
-                <label>Phone</label>
+                <label><?= __('phone') ?></label>
                 <input type="text" id="phone" required>
             </div>
 
             <div class="form-group">
-                <label>Username</label>
+                <label><?= __('username') ?></label>
                 <input type="text" id="username" required>
             </div>
 
             <div id="passwordFields">
                 <div class="form-group">
-                    <label>Password</label>
+                    <label><?= __('password') ?></label>
                     <input type="password" id="password">
                 </div>
                 <div class="form-group">
-                    <label>Confirm Password</label>
+                    <label><?= __('confirm_password') ?></label>
                     <input type="password" id="confirmPassword">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>License Copy</label>
+                <label><?= __('license_copy') ?></label>
                 <input type="file" id="license_copy" accept="image/*,.pdf">
             </div>
 
             <div class="form-group">
-                <label>Status</label>
+                <label><?= __('status') ?></label>
                 <select id="status">
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="suspended">Suspended</option>
+                    <option value="pending"><?= __('pending') ?></option>
+                    <option value="approved"><?= __('approved') ?></option>
+                    <option value="suspended"><?= __('suspended') ?></option>
                 </select>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()"><?= __('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= __('save') ?></button>
             </div>
         </form>
     </div>
@@ -263,7 +262,7 @@ function renderTable() {
     body.innerHTML = "";
 
     if (filteredData.length === 0) {
-        body.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">No transporters found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;"><?= __('no_transporters_found') ?></td></tr>`;
         document.getElementById("pageInfo").textContent = "Page 0 of 0";
         return;
     }
@@ -282,10 +281,10 @@ function renderTable() {
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
                 <a href="transporter_view.php?id=${row.id}" class="btn-small btn-view" style="margin-right:5px;">
-                    <i data-feather="eye"></i> View
+                    <i data-feather="eye"></i> <?= __('view') ?>
                 </a>
-                <button onclick="editTransporter(${row.id})" class="btn-small btn-view" style="margin-right:5px;">Edit</button>
-                <button onclick="deleteTransporter(${row.id})" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;">Delete</button>
+                <button onclick="editTransporter(${row.id})" class="btn-small btn-view" style="margin-right:5px;"><?= __('edit') ?></button>
+                <button onclick="deleteTransporter(${row.id})" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;"><?= __('delete') ?></button>
             </td>
         </tr>`;
     });
@@ -299,7 +298,7 @@ const modal = document.getElementById("transporterModal");
 const form = document.getElementById("transporterForm");
 
 function openModal() {
-    document.getElementById("modalTitle").innerText = "Add Transporter";
+    document.getElementById("modalTitle").innerText = "<?= __('add_transporter') ?>";
     document.getElementById("transporterId").value = "";
     document.getElementById("passwordFields").style.display = "block";
     document.getElementById("password").required = true;
@@ -316,7 +315,7 @@ function closeModal() {
 function editTransporter(id) {
     const item = data.find(d => d.id == id);
     if (item) {
-        document.getElementById("modalTitle").innerText = "Edit Transporter";
+        document.getElementById("modalTitle").innerText = "<?= __('edit_transporter') ?>";
         document.getElementById("transporterId").value = item.id;
         document.getElementById("name").value = item.name;
         document.getElementById("email").value = item.email;
@@ -342,7 +341,7 @@ function editTransporter(id) {
 }
 
 async function deleteTransporter(id) {
-    if (confirm("Are you sure you want to delete this transporter? This will also delete their user account.")) {
+    if (confirm("<?= __('delete_transporter_confirm') ?>")) {
         try {
             const response = await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             const result = await response.json();
@@ -365,7 +364,7 @@ form.addEventListener("submit", async (e) => {
     const confirmPassword = document.getElementById("confirmPassword").value;
 
     if (!id && password !== confirmPassword) {
-        alert("Passwords do not match!");
+        alert("<?= __('passwords_dont_match') ?>");
         return;
     }
 
@@ -401,7 +400,7 @@ form.addEventListener("submit", async (e) => {
         if (result.success) {
             closeModal();
             fetchTransporters();
-            alert(id ? "Transporter updated successfully!" : "Transporter created successfully!");
+            alert(id ? "<?= __('transporter_updated') ?>" : "<?= __('transporter_created') ?>");
         } else {
             alert("Error: " + result.error);
         }

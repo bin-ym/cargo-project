@@ -1,5 +1,4 @@
 <?php 
-session_start();
 require_once __DIR__ . '/../../backend/config/session.php';
 require_once __DIR__ . '/../layout/header_admin.php';
 ?>
@@ -7,29 +6,29 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div class="dashboard">
     <main class="main-content">
         <header class="topbar">
-            <h2>Customers</h2>
+            <h2><?= __('customers') ?></h2>
             <button class="btn btn-primary" onclick="openModal()">
-                <i data-feather="plus"></i> Add Customer
+                <i data-feather="plus"></i> <?= __('add_customer') ?>
             </button>
         </header>
 
         <div class="content">
 
             <div class="table-controls">
-                <input type="text" id="searchInput" placeholder="Search customers..." class="search-box">
-                <button id="exportCSV" class="btn btn-secondary">Export CSV</button>
+                <input type="text" id="searchInput" placeholder="<?= __('search_customers') ?>" class="search-box">
+                <button id="exportCSV" class="btn btn-secondary"><?= __('export_csv') ?></button>
             </div>
 
             <div class="table-wrapper">
                 <table class="table-modern" id="dataTable">
                     <thead>
                         <tr>
-                            <th>No.</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>City</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('no') ?></th>
+                            <th><?= __('full_name') ?></th>
+                            <th><?= __('email') ?></th>
+                            <th><?= __('phone') ?></th>
+                            <th><?= __('city') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -37,9 +36,9 @@ require_once __DIR__ . '/../layout/header_admin.php';
             </div>
 
             <div class="pagination">
-                <button class="page-btn" id="prevPage">Prev</button>
+                <button class="page-btn" id="prevPage"><?= __('prev') ?></button>
                 <span id="pageInfo"></span>
-                <button class="page-btn" id="nextPage">Next</button>
+                <button class="page-btn" id="nextPage"><?= __('next') ?></button>
             </div>
 
         </div>
@@ -50,40 +49,40 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div id="customerModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">Add Customer</h3>
+            <h3 id="modalTitle"><?= __('add_customer') ?></h3>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <form id="customerForm">
             <input type="hidden" id="customerId">
             
             <div class="form-group">
-                <label>Full Name</label>
+                <label><?= __('full_name') ?></label>
                 <input type="text" id="name" required>
             </div>
             
             <div class="form-group">
-                <label>Email</label>
+                <label><?= __('email') ?></label>
                 <input type="email" id="email" required>
             </div>
 
             <div class="form-group">
-                <label>Phone</label>
+                <label><?= __('phone') ?></label>
                 <input type="text" id="phone" required>
             </div>
 
             <div class="form-group">
-                <label>Address</label>
+                <label><?= __('address') ?></label>
                 <input type="text" id="address" required>
             </div>
 
             <div class="form-group">
-                <label>City</label>
+                <label><?= __('city') ?></label>
                 <input type="text" id="city" required>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()"><?= __('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= __('save') ?></button>
             </div>
         </form>
     </div>
@@ -230,7 +229,7 @@ function renderTable() {
     body.innerHTML = "";
 
     if (filteredData.length === 0) {
-        body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;">No customers found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;"><?= __('no_customers_found') ?></td></tr>`;
         document.getElementById("pageInfo").textContent = "Page 0 of 0";
         return;
     }
@@ -248,8 +247,8 @@ function renderTable() {
                 <td>${row.phone}</td>
                 <td>${row.city}</td>
                 <td class="row-action">
-                    <button onclick="editCustomer(${row.id})" class="btn-small btn-view" style="margin-right:5px;">Edit</button>
-                    <button onclick="deleteCustomer(${row.id})" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;">Delete</button>
+                    <button onclick="editCustomer(${row.id})" class="btn-small btn-view" style="margin-right:5px;"><?= __('edit') ?></button>
+                    <button onclick="deleteCustomer(${row.id})" class="btn-small" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;"><?= __('delete') ?></button>
                 </td>
             </tr>
         `;
@@ -264,7 +263,7 @@ const modal = document.getElementById("customerModal");
 const form = document.getElementById("customerForm");
 
 function openModal() {
-    document.getElementById("modalTitle").innerText = "Add Customer";
+    document.getElementById("modalTitle").innerText = "<?= __('add_customer') ?>";
     document.getElementById("customerId").value = "";
     form.reset();
     modal.style.display = "flex";
@@ -278,7 +277,7 @@ function editCustomer(id) {
     const item = data.find(d => d.id == id);
     if (!item) return;
 
-    document.getElementById("modalTitle").innerText = "Edit Customer";
+    document.getElementById("modalTitle").innerText = "<?= __('edit_customer') ?>";
     document.getElementById("customerId").value = item.id;
     document.getElementById("name").value = item.name;
     document.getElementById("email").value = item.email;
@@ -291,7 +290,7 @@ function editCustomer(id) {
 
 // Delete
 async function deleteCustomer(id) {
-    if (!confirm("Delete this customer?")) return;
+    if (!confirm("<?= __('delete_confirm') ?>")) return;
 
     try {
         const response = await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });

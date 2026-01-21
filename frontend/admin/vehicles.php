@@ -12,9 +12,9 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div class="dashboard">
     <main class="main-content">
         <header class="topbar">
-            <h2>Vehicles Management</h2>
+            <h2><?= __('vehicles_management') ?></h2>
             <button class="btn btn-primary" onclick="openAddModal()">
-                <i data-feather="plus"></i> Add Vehicle
+                <i data-feather="plus"></i> <?= __('add_vehicle') ?>
             </button>
         </header>
 
@@ -23,17 +23,17 @@ require_once __DIR__ . '/../layout/header_admin.php';
                 <table class="table-modern">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Plate Number</th>
-                            <th>Vehicle Type</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th class="row-action">Actions</th>
+                            <th><?= __('id') ?></th>
+                            <th><?= __('plate_number') ?></th>
+                            <th><?= __('vehicle_type') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th><?= __('created') ?></th>
+                            <th class="row-action"><?= __('actions') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="6" class="loading-cell">Loading…</td>
+                            <td colspan="6" class="loading-cell"><?= __('loading_dots') ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -46,7 +46,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div id="vehicleModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="modalTitle">Add Vehicle</h3>
+            <h3 id="modalTitle"><?= __('add_vehicle') ?></h3>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
 
@@ -54,32 +54,32 @@ require_once __DIR__ . '/../layout/header_admin.php';
             <input type="hidden" id="vehicle_id">
 
             <div class="form-group">
-                <label>Plate Number</label>
+                <label><?= __('plate_number') ?></label>
                 <input type="text" id="plate_number" required>
             </div>
 
             <div class="form-group">
-                <label>Vehicle Type</label>
+                <label><?= __('vehicle_type') ?></label>
                 <select id="vehicle_type" required>
-                    <option value="">Select</option>
-                    <option value="pickup">Pickup (Small)</option>
-                    <option value="isuzu">Isuzu (Medium)</option>
-                    <option value="trailer">Trailer (Large)</option>
+                    <option value=""><?= __('select') ?></option>
+                    <option value="pickup"><?= __('pickup_small') ?></option>
+                    <option value="isuzu"><?= __('isuzu_medium') ?></option>
+                    <option value="trailer"><?= __('trailer_large') ?></option>
                 </select>
             </div>
 
             <div class="form-group hidden" id="statusGroup">
-                <label>Status</label>
+                <label><?= __('status') ?></label>
                 <select id="status">
-                    <option value="available">Available</option>
-                    <option value="in-use">In Use</option>
-                    <option value="maintenance">Maintenance</option>
+                    <option value="available"><?= __('available') ?></option>
+                    <option value="in-use"><?= __('in_use') ?></option>
+                    <option value="maintenance"><?= __('maintenance') ?></option>
                 </select>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()"><?= __('cancel') ?></button>
+                <button type="submit" class="btn btn-primary" id="submitBtn"><?= __('save') ?></button>
             </div>
         </form>
     </div>
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tbody.innerHTML = '';
 
         if (!vehicles.length) {
-            tbody.innerHTML = `<tr><td colspan="6" class="empty-cell">No vehicles found</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-cell"><?= __('no_vehicles_found') ?></td></tr>`;
             return;
         }
 
@@ -134,8 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td><span class="badge ${badgeMap[v.status] || 'secondary'}">${v.status}</span></td>
                     <td>${new Date(v.created_at).toLocaleDateString()}</td>
                     <td class="row-action">
-                        <button class="btn-small btn-view" onclick="editVehicle(${v.id})">Edit</button>
-                        <button class="btn-small btn-delete" onclick="deleteVehicle(${v.id})">Delete</button>
+                        <button class="btn-small btn-view" onclick="editVehicle(${v.id})"><?= __('edit') ?></button>
+                        <button class="btn-small btn-delete" onclick="deleteVehicle(${v.id})"><?= __('delete') ?></button>
                     </td>
                 </tr>
             `;
@@ -146,9 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatType(type) {
         return {
-            pickup: 'Pickup (Small)',
-            isuzu: 'Isuzu (Medium)',
-            trailer: 'Trailer (Large)'
+            pickup: '<?= __('pickup_small') ?>',
+            isuzu: '<?= __('isuzu_medium') ?>',
+            trailer: '<?= __('trailer_large') ?>'
         }[type] || type;
     }
 
@@ -157,8 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('vehicleForm').reset();
         document.getElementById('vehicle_id').value = '';
         document.getElementById('statusGroup').classList.add('hidden');
-        document.getElementById('modalTitle').innerText = 'Add Vehicle';
-        document.getElementById('submitBtn').innerText = 'Add';
+        document.getElementById('modalTitle').innerText = '<?= __('add_vehicle') ?>';
+        document.getElementById('submitBtn').innerText = '<?= __('add_vehicle') ?>';
         document.getElementById('vehicleModal').style.display = 'flex';
     }
 
@@ -172,8 +172,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('status').value = v.status;
         document.getElementById('statusGroup').classList.remove('hidden');
 
-        document.getElementById('modalTitle').innerText = 'Edit Vehicle';
-        document.getElementById('submitBtn').innerText = 'Update';
+        document.getElementById('modalTitle').innerText = '<?= __('edit_vehicle') ?>';
+        document.getElementById('submitBtn').innerText = '<?= __('update') ?>';
         document.getElementById('vehicleModal').style.display = 'flex';
     }
 
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ================= DELETE =================
     window.deleteVehicle = async function (id) {
-        if (!confirm('Delete this vehicle?')) return;
+        if (!confirm('<?= __('delete_vehicle_confirm') ?>')) return;
 
         try {
             const res = await fetch(`${API_URL}/delete_vehicle.php`, {

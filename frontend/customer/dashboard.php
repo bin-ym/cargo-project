@@ -15,7 +15,7 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
     <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar">
-            <h2>Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?> 👋</h2>
+            <h2><?= __('welcome') ?>, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?> 👋</h2>
             <div class="user-info">
                 <span class="badge badge-primary"><?= ucfirst($_SESSION['role']) ?></span>
             </div>
@@ -24,35 +24,35 @@ require_once __DIR__ . '/../layout/header_customer.php';
         <div class="content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>My Requests</h3>
+                    <h3><?= __('my_requests') ?></h3>
                     <p class="stat-number" id="totalRequests">--</p>
-                    <div class="stat-trend up">Total requests</div>
+                    <div class="stat-trend up"><?= __('total_requests_subtitle') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Pending</h3>
+                    <h3><?= __('pending') ?></h3>
                     <p class="stat-number" id="pendingRequests">--</p>
-                    <div class="stat-trend">Awaiting approval</div>
+                    <div class="stat-trend"><?= __('awaiting_approval') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Approved</h3>
+                    <h3><?= __('approved') ?></h3>
                     <p class="stat-number" id="approvedRequests">--</p>
-                    <div class="stat-trend">Awaiting transporter</div>
+                    <div class="stat-trend"><?= __('awaiting_transporter') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>In Transit</h3>
+                    <h3><?= __('in_transit') ?></h3>
                     <p class="stat-number" id="inTransitCount">--</p>
-                    <div class="stat-trend">Currently active</div>
+                    <div class="stat-trend"><?= __('currently_active') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Completed</h3>
+                    <h3><?= __('completed') ?></h3>
                     <p class="stat-number" id="completedRequests">--</p>
-                    <div class="stat-trend up">Successfully delivered</div>
+                    <div class="stat-trend up"><?= __('successfully_delivered') ?></div>
                 </div>
             </div>
 
             <!-- Pending Payments Section -->
             <div id="pendingPaymentsSection" class="alert-section" style="display: none;">
-                <h3 class="alert-title">⚠️ Pending Payments</h3>
+                <h3 class="alert-title">⚠️ <?= __('pending_payments') ?></h3>
                 <div class="card" class="alert-card">
                     <div id="pendingPaymentsList"></div>
                 </div>
@@ -60,23 +60,23 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
             <div class="recent-activity-card">
     <div class="activity-header">
-        <h3>Recent Activity</h3>
-        <span class="activity-subtitle">Latest updates on your shipments</span>
+        <h3><?= __('recent_activity') ?></h3>
+        <span class="activity-subtitle"><?= __('latest_shipment_updates') ?></span>
     </div>
 
     <div class="activity-timeline" id="activityList">
-        <p class="text-muted text-center p-4">Loading activity...</p>
+        <p class="text-muted text-center p-4"><?= __('loading_activity') ?></p>
     </div>
 </div>
 
             <div class="quick-actions">
                 <a href="new_request.php" class="btn btn-primary">
                     <i data-feather="plus"></i>
-                    New Request
+                    <?= __('new_request') ?>
                 </a>
                 <a href="my_requests.php" class="btn btn-secondary">
                     <i data-feather="list"></i>
-                    View My Requests
+                    <?= __('view_my_requests') ?>
                 </a>
             </div>
         </div>
@@ -105,7 +105,7 @@ async function loadDashboardStats() {
             activityList.innerHTML = '';
 
             if (data.recentActivity.length === 0) {
-                activityList.innerHTML = '<p class="text-muted text-center p-4">No recent activity</p>';
+                activityList.innerHTML = '<p class="text-muted text-center p-4"><?= __('no_recent_activity') ?></p>';
             } else {
                 data.recentActivity.forEach(item => {
                     activityList.innerHTML += `
@@ -135,11 +135,11 @@ async function loadDashboardStats() {
                     pendingList.innerHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9;">
                             <div>
-                                <strong style="color: #0f172a;">Request #${p.id}</strong>
+                                <strong style="color: #0f172a;"><?= __('requests') ?> #${p.id}</strong>
                                 <div style="color: #64748b; font-size: 0.9rem;">${p.pickup_location} -> ${p.dropoff_location}</div>
                                 <div style="color: #0f172a; font-weight: 600; margin-top: 4px;">${p.price} ETB</div>
                             </div>
-                            <button class="btn btn-primary" onclick="initiatePayment(${p.id})" style="background: #16a34a; border-color: #16a34a;">Pay Now</button>
+                            <button class="btn btn-primary" onclick="initiatePayment(${p.id})" style="background: #16a34a; border-color: #16a34a;"><?= __('pay_now') ?></button>
                         </div>
                     `;
                 });
@@ -170,13 +170,13 @@ function formatTimeAgo(dateString) {
 }
 
 async function initiatePayment(requestId) {
-    if (!confirm("Proceed to payment for Request #" + requestId + "?")) return;
+    if (!confirm("<?= __('payment_confirm') ?>" + requestId + "?")) return;
 
     const btn = event.target;
     const originalText = btn.innerHTML;
     
     try {
-        btn.innerHTML = '<i class="spinner-small"></i> Processing...';
+        btn.innerHTML = '<i class="spinner-small"></i> <?= __('processing') ?>';
         btn.disabled = true;
 
         const res = await fetch('/cargo-project/backend/api/customer/initiate_payment.php', {
@@ -187,7 +187,7 @@ async function initiatePayment(requestId) {
         const data = await res.json();
 
         if (data.success) {
-            btn.innerHTML = '<i class="spinner-small"></i> Redirecting...';
+            btn.innerHTML = '<i class="spinner-small"></i> <?= __('redirecting') ?>';
             window.location.href = data.payment_url;
         } else {
             alert("Payment Error: " + data.error);
@@ -218,18 +218,18 @@ async function verifyPayment(ref) {
         const result = await response.json();
 
         if (result.success) {
-            alert("Payment Successful! Your request has been approved.");
+            alert("<?= __('payment_success') ?>");
             // Clean URL and reload by navigating to the base path
             window.location.href = window.location.pathname;
         } else {
             console.error(result.error);
-            alert("Payment verification failed: " + (result.error || "Unknown error"));
+            alert("<?= __('payment_failed') ?>" + (result.error || "Unknown error"));
             // Clean URL even on failure to avoid loops
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     } catch (err) {
         console.error("Verification error:", err);
-        alert("An error occurred while verifying payment. Please check your internet connection or contact support.");
+        alert("<?= __('verification_error') ?>");
     }
 }
 

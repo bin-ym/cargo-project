@@ -11,7 +11,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
     <?php include 'sidebar.php'; ?>
     <main class="main-content">
         <header class="topbar">
-            <h2>My Assignments</h2>
+            <h2><?= __('my_assignments') ?></h2>
             <div class="user-info">
                 <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Transporter') ?></span>
             </div>
@@ -22,24 +22,23 @@ require_once __DIR__ . '/../layout/header_transporter.php';
                 <table class="table-modern">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Pickup</th>
-                            <th>Dropoff</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('order_id') ?></th>
+                            <th><?= __('customer') ?></th>
+                            <th><?= __('pickup') ?></th>
+                            <th><?= __('dropoff') ?></th>
+                            <th><?= __('date') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="7" class="text-center p-20 text-muted">Loading assignments...</td>
+                            <td colspan="7" class="text-center p-20 text-muted"><?= __('loading_assignments') ?></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
     </main>
 </div>
 
@@ -54,11 +53,11 @@ async function fetchAssignments() {
         if (result.success) {
             renderTable(result.data);
         } else {
-            showError('Failed to load assignments');
+            showError("<?= __('failed_load_assignments') ?>");
         }
     } catch (error) {
         console.error('Error fetching assignments:', error);
-        showError('Error loading assignments');
+        showError("<?= __('error_load_assignments') ?>");
     }
 }
 
@@ -72,8 +71,8 @@ function renderTable(data) {
                 <td colspan="7" class="empty-state">
                     <div class="text-muted">
                         <i data-feather="truck" class="empty-state-icon"></i>
-                        <p class="empty-state-title">No assignments found</p>
-                        <p class="empty-state-subtitle">New delivery requests will appear here</p>
+                        <p class="empty-state-title"><?= __('no_assignments_found') ?></p>
+                        <p class="empty-state-subtitle"><?= __('new_requests_appear_here') ?></p>
                     </div>
                 </td>
             </tr>`;
@@ -83,7 +82,6 @@ function renderTable(data) {
 
     data.forEach(row => {
         const requestIdFormatted = `#CT-${String(row.id).padStart(4, '0')}`;
-        const route = `${row.pickup_location} → ${row.dropoff_location}`;
         const statusClass = row.shipment_status === 'delivered' ? 'approved' : 
                           (row.shipment_status === 'in-transit' ? 'pending' : 'pending');
         
@@ -96,7 +94,7 @@ function renderTable(data) {
             <td>${row.pickup_date}</td>
             <td><span class="badge ${statusClass}">${row.shipment_status}</span></td>
             <td class="row-action">
-                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view">View Details</a>
+                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view"><?= __('view_details') ?></a>
             </td>
         </tr>`;
     });
@@ -117,3 +115,4 @@ function showError(message) {
 fetchAssignments();
 feather.replace();
 </script>
+<?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?>

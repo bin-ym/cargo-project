@@ -17,7 +17,7 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <main class="main-content">
     <!-- Topbar -->
     <header class="topbar">
-        <h2>Welcome, <?= htmlspecialchars($_SESSION['username']); ?> 👋</h2>
+        <h2><?= __('welcome') ?>, <?= htmlspecialchars($_SESSION['username']); ?> 👋</h2>
         <div class="user-info">
             <span><?= ucfirst($_SESSION['role']); ?></span>
         </div>
@@ -29,37 +29,37 @@ require_once __DIR__ . '/../layout/header_admin.php';
         <!-- Stats grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Total Requests</h3>
+                <h3><?= __('total_requests') ?></h3>
                 <p class="stat-number" id="totalRequests">--</p>
-                <div class="stat-trend up">All requests</div>
+                <div class="stat-trend up"><?= __('all_requests') ?></div>
             </div>
 
             <div class="stat-card">
-                <h3>Approved</h3>
+                <h3><?= __('approved') ?></h3>
                 <p class="stat-number" id="approvedRequests">--</p>
-                <div class="stat-trend up">Successfully approved</div>
+                <div class="stat-trend up"><?= __('successfully_approved') ?></div>
             </div>
 
             <div class="stat-card">
-                <h3>Pending</h3>
+                <h3><?= __('pending') ?></h3>
                 <p class="stat-number" id="pendingRequests">--</p>
-                <div class="stat-trend down">Awaiting action</div>
+                <div class="stat-trend down"><?= __('awaiting_action') ?></div>
             </div>
 
             <div class="stat-card">
-                <h3>Revenue</h3>
+                <h3><?= __('revenue') ?></h3>
                 <p class="stat-number" id="revenue">--</p>
-                <div class="stat-trend up">Estimated revenue</div>
+                <div class="stat-trend up"><?= __('estimated_revenue') ?></div>
             </div>
         </div>
 
         <!-- Recent activity -->
         <div class="recent-activity">
-            <h3>Recent Activity</h3>
+            <h3><?= __('recent_activity') ?></h3>
             <div class="activity-list" id="activityList">
                 <div class="activity-item">
                     <div class="activity-content">
-                        <p class="text-muted">Loading activity...</p>
+                        <p class="text-muted"><?= __('loading_activity') ?></p>
                     </div>
                 </div>
             </div>
@@ -68,10 +68,10 @@ require_once __DIR__ . '/../layout/header_admin.php';
         <!-- Actions -->
         <div class="actions">
             <a href="requests.php" class="btn btn-primary">
-                <i data-feather="file-text"></i> View All Requests
+                <i data-feather="file-text"></i> <?= __('view_all_requests') ?>
             </a>
             <a href="reports.php" class="btn btn-secondary">
-                <i data-feather="bar-chart"></i> Generate Reports
+                <i data-feather="bar-chart"></i> <?= __('generate_reports') ?>
             </a>
         </div>
 
@@ -107,7 +107,7 @@ async function loadDashboardStats() {
             activityList.innerHTML = `
                 <div class="activity-item">
                     <div class="activity-content">
-                        <p class="text-muted">No recent activity</p>
+                        <p class="text-muted"><?= __('no_recent_activity') ?></p>
                     </div>
                 </div>`;
             return;

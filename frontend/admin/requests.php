@@ -12,30 +12,30 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div class="dashboard">
     <main class="main-content">
         <header class="topbar">
-            <h2>All Requests</h2>
+            <h2><?= __('all_requests_title') ?></h2>
         </header>
 
         <div class="content">
             <!-- Status Cards -->
             <div class="status-cards">
                 <div class="card card-total">
-                    <h3>Total Requests</h3>
+                    <h3><?= __('total_requests') ?></h3>
                     <p id="count-total">0</p>
                 </div>
                 <div class="card card-pending">
-                    <h3>Pending</h3>
+                    <h3><?= __('pending') ?></h3>
                     <p id="count-pending">0</p>
                 </div>
                 <div class="card card-approved">
-                    <h3>Approved</h3>
+                    <h3><?= __('approved') ?></h3>
                     <p id="count-approved">0</p>
                 </div>
                 <div class="card card-rejected">
-                    <h3>Rejected</h3>
+                    <h3><?= __('rejected') ?></h3>
                     <p id="count-rejected">0</p>
                 </div>
                 <div class="card card-completed">
-                    <h3>Completed</h3>
+                    <h3><?= __('completed') ?></h3>
                     <p id="count-completed">0</p>
                 </div>
             </div>
@@ -43,26 +43,26 @@ require_once __DIR__ . '/../layout/header_admin.php';
             <!-- Tabs & Search -->
             <div class="table-controls">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="filterByTab('all')">All</button>
-                    <button class="tab-btn" onclick="filterByTab('pending')">Pending</button>
-                    <button class="tab-btn" onclick="filterByTab('approved')">Approved</button>
-                    <button class="tab-btn" onclick="filterByTab('rejected')">Rejected</button>
-                    <button class="tab-btn" onclick="filterByTab('completed')">Completed</button>
+                    <button class="tab-btn active" onclick="filterByTab('all')"><?= __('all') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('pending')"><?= __('pending') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('approved')"><?= __('approved') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('rejected')"><?= __('rejected') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('completed')"><?= __('completed') ?></button>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search requests..." class="search-box">
+                <input type="text" id="searchInput" placeholder="<?= __('search_requests') ?>" class="search-box">
             </div>
 
             <div class="table-wrapper">
                 <table class="table-modern" id="dataTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Customer</th>
-                            <th>Pickup</th>
-                            <th>Dropoff</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('id') ?></th>
+                            <th><?= __('customer') ?></th>
+                            <th><?= __('pickup') ?></th>
+                            <th><?= __('dropoff') ?></th>
+                            <th><?= __('date') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -70,9 +70,9 @@ require_once __DIR__ . '/../layout/header_admin.php';
             </div>
 
             <div class="pagination">
-                <button class="page-btn" id="prevPage">Prev</button>
+                <button class="page-btn" id="prevPage"><?= __('prev') ?></button>
                 <span id="pageInfo"></span>
-                <button class="page-btn" id="nextPage">Next</button>
+                <button class="page-btn" id="nextPage"><?= __('next') ?></button>
             </div>
         </div>
     </main>
@@ -145,7 +145,14 @@ function filterByTab(tab) {
     // Update active tab UI
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.innerText.toLowerCase() === tab || (tab === 'all' && btn.innerText === 'All')) {
+        // Check both text content and translation
+        if (btn.innerText.toLowerCase() === tab || 
+            (tab === 'all' && (btn.innerText === 'All' || btn.innerText === '<?= __('all') ?>')) ||
+            btn.innerText === '<?= __('pending') ?>' && tab === 'pending' ||
+            btn.innerText === '<?= __('approved') ?>' && tab === 'approved' ||
+            btn.innerText === '<?= __('rejected') ?>' && tab === 'rejected' ||
+            btn.innerText === '<?= __('completed') ?>' && tab === 'completed'
+        ) {
             btn.classList.add('active');
         }
     });
@@ -176,7 +183,7 @@ function renderTable() {
     body.innerHTML = "";
 
     if (filteredData.length === 0) {
-        body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No requests found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;"><?= __('no_requests_found') ?></td></tr>`;
         document.getElementById("pageInfo").textContent = "Page 0 of 0";
         return;
     }
@@ -195,7 +202,7 @@ function renderTable() {
             <td>${row.pickup_date}</td>
             <td><span class="badge ${row.status}">${row.status}</span></td>
             <td class="row-action">
-                <a href="order_items.php?id=${row.id}" class="btn-small btn-view" style="margin-right: 5px;">View</a>
+                <a href="order_items.php?id=${row.id}" class="btn-small btn-view" style="margin-right: 5px;"><?= __('view') ?></a>
             </td>
         </tr>`;
     });
@@ -215,20 +222,20 @@ feather.replace();
 <div id="assignModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Assign Transporter</h3>
+            <h3><?= __('assign_transporter') ?></h3>
             <span class="close" onclick="closeAssignModal()">&times;</span>
         </div>
         <form id="assignForm">
             <input type="hidden" id="assignRequestId">
             <div class="form-group">
-                <label>Select Transporter</label>
+                <label><?= __('select_transporter') ?></label>
                 <select id="transporterSelect" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    <option value="">Select Transporter</option>
+                    <option value=""><?= __('select_transporter') ?></option>
                 </select>
             </div>
             <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" class="btn btn-secondary" onclick="closeAssignModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Assign</button>
+                <button type="button" class="btn btn-secondary" onclick="closeAssignModal()"><?= __('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= __('assign') ?></button>
             </div>
         </form>
     </div>

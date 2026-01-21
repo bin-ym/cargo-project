@@ -11,7 +11,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
     <?php include 'sidebar.php'; ?>
     <main class="main-content">
         <header class="topbar">
-            <h2>Active Deliveries</h2>
+            <h2><?= __('active_deliveries_title') ?></h2>
             <div class="user-info">
                 <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Transporter') ?></span>
             </div>
@@ -22,18 +22,18 @@ require_once __DIR__ . '/../layout/header_transporter.php';
                 <table class="table-modern">
                     <thead>
                         <tr>
-                            <th>Request ID</th>
-                            <th>Customer</th>
-                            <th>Route</th>
-                            <th>Pickup Date</th>
-                            <th>Status</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('request_id') ?></th>
+                            <th><?= __('customer') ?></th>
+                            <th><?= __('route') ?></th>
+                            <th><?= __('pickup_date') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
             <td colspan="6" class="text-center p-20 text-muted">
-                                Loading active deliveries...
+                                <?= __('loading_active_deliveries') ?>
                             </td>
                         </tr>
                     </tbody>
@@ -56,11 +56,11 @@ async function fetchActiveDeliveries() {
             const activeDeliveries = result.data.filter(r => r.shipment_status === 'in-transit');
             renderTable(activeDeliveries);
         } else {
-            showError('Failed to load deliveries');
+            showError("<?= __('failed_load_deliveries') ?>");
         }
     } catch (error) {
         console.error('Error fetching deliveries:', error);
-        showError('Error loading deliveries');
+        showError("<?= __('error_load_deliveries') ?>");
     }
 }
 
@@ -74,8 +74,8 @@ function renderTable(data) {
                 <td colspan="6" class="empty-state">
                     <div class="text-muted">
                         <i data-feather="package" class="empty-state-icon"></i>
-                        <p class="empty-state-title">No active deliveries</p>
-                        <p class="empty-state-subtitle">All in-transit deliveries will appear here</p>
+                        <p class="empty-state-title"><?= __('no_active_deliveries') ?></p>
+                        <p class="empty-state-subtitle"><?= __('all_intransit_appear_here') ?></p>
                     </div>
                 </td>
             </tr>`;
@@ -93,9 +93,9 @@ function renderTable(data) {
             <td>${row.customer_name}</td>
             <td>${route}</td>
             <td>${row.pickup_date}</td>
-            <td><span class="badge pending">In Transit</span></td>
+            <td><span class="badge pending"><?= __('in_transit') ?></span></td>
             <td class="row-action">
-                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view">View Details</a>
+                <a href="assignment_details.php?id=${row.id}" class="btn-small btn-view"><?= __('view_details') ?></a>
             </td>
         </tr>`;
     });
@@ -116,5 +116,4 @@ function showError(message) {
 fetchActiveDeliveries();
 feather.replace();
 </script>
-
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+<?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?>

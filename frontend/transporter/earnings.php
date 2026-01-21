@@ -11,7 +11,7 @@ require_once __DIR__ . '/../layout/header_transporter.php';
     <?php include 'sidebar.php'; ?>
     <main class="main-content">
         <header class="topbar">
-            <h2>Earnings</h2>
+            <h2><?= __('earnings') ?></h2>
             <div class="user-info">
                 <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Transporter') ?></span>
             </div>
@@ -20,39 +20,38 @@ require_once __DIR__ . '/../layout/header_transporter.php';
         <div class="content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Earnings</h3>
+                    <h3><?= __('total_earnings') ?></h3>
                     <p class="stat-number" id="totalEarnings">--</p>
-                    <div class="stat-trend up">Lifetime earnings</div>
+                    <div class="stat-trend up"><?= __('lifetime_earnings') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Completed Trips</h3>
+                    <h3><?= __('completed_trips') ?></h3>
                     <p class="stat-number" id="completedTrips">--</p>
-                    <div class="stat-trend">Successfully delivered</div>
+                    <div class="stat-trend"><?= __('successfully_delivered') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Avg per Delivery</h3>
+                    <h3><?= __('avg_per_delivery') ?></h3>
                     <p class="stat-number" id="avgEarning">--</p>
-                    <div class="stat-trend">Average payout</div>
+                    <div class="stat-trend"><?= __('average_payout') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Rating</h3>
+                    <h3><?= __('rating') ?></h3>
                     <p class="stat-number" id="rating">--</p>
-                    <div class="stat-trend" id="ratingTrend">Out of 5.0</div>
+                    <div class="stat-trend" id="ratingTrend"><?= __('out_of_5') ?></div>
                 </div>
             </div>
 
             <div class="recent-activity">
-                <h3>Earnings Breakdown (Last 7 Days)</h3>
+                <h3><?= __('earnings_breakdown_7days') ?></h3>
                 <canvas id="earningsChart" class="p-20" style="max-height: 300px;"></canvas>
             </div>
 
             <div class="recent-activity mt-20" style="margin-top: 30px;">
-                <h3>Recent Payments</h3>
+                <h3><?= __('recent_payments') ?></h3>
                 <div class="activity-list" id="recentPayments">
-                    <p class="text-center p-20 text-muted">Loading payments...</p>
+                    <p class="text-center p-20 text-muted"><?= __('loading_payments') ?></p>
                 </div>
             </div>
-            <!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
         </div>
     </main>
 </div>
@@ -77,23 +76,21 @@ async function loadEarnings() {
             
             document.getElementById('rating').innerText = data.rating + ' ★';
             const ratingCount = data.ratingCount || 0;
-            document.getElementById('ratingTrend').innerText = `Based on ${ratingCount} rating${ratingCount !== 1 ? 's' : ''}`;
+            const ratingLabel = ratingCount === 1 ? "<?= __('rating_singular') ?>" : "<?= __('rating_plural') ?>";
+            document.getElementById('ratingTrend').innerText = "<?= __('based_on') ?> " + ratingCount + " " + ratingLabel;
 
             // Create Chart
             const ctx = document.getElementById('earningsChart').getContext('2d');
             
-            // Prepare labels and data for the last 7 days
             const labels = [];
             const chartData = [];
             
-            // If API returns an array of objects with date and earnings
             if (Array.isArray(data.earningsChart)) {
                 data.earningsChart.forEach(item => {
                     labels.push(new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }));
                     chartData.push(item.earnings);
                 });
             } else {
-                // Fallback or empty
                 for(let i=0; i<7; i++) { labels.push(''); chartData.push(0); }
             }
 
@@ -102,7 +99,7 @@ async function loadEarnings() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Earnings (ETB)',
+                        label: "<?= __('earnings_etb') ?>",
                         data: chartData,
                         borderColor: '#16a34a',
                         backgroundColor: 'rgba(22, 163, 74, 0.1)',
@@ -127,7 +124,7 @@ async function loadEarnings() {
             paymentsList.innerHTML = '';
 
             if (!data.recentDeliveries || data.recentDeliveries.length === 0) {
-                paymentsList.innerHTML = '<p class="text-center p-20 text-muted">No recent payments</p>';
+                paymentsList.innerHTML = '<p class="text-center p-20 text-muted"><?= __('no_recent_payments') ?></p>';
             } else {
                 data.recentDeliveries.forEach(item => {
                     if (item.status === 'delivered') {
@@ -137,7 +134,7 @@ async function loadEarnings() {
                                     <i data-feather="dollar-sign"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <p>Payment received for Request <strong>#${item.id}</strong></p>
+                                    <p><?= __('payment_received_for_request') ?> <strong>#${item.id}</strong></p>
                                     <span class="activity-time">${item.date}</span>
                                 </div>
                                 <strong class="text-success">+${item.earning} ETB</strong>
@@ -156,3 +153,4 @@ async function loadEarnings() {
 loadEarnings();
 feather.replace();
 </script>
+<?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?>

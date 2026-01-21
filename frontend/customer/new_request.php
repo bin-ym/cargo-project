@@ -27,7 +27,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
     <?php include __DIR__ . '/../layout/navbar_customer.php'; ?>
     <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar" style="margin-bottom: 30px;">
-            <h2>New Cargo Request</h2>
+            <h2><?= __('new_cargo_request') ?></h2>
             <div class="user-info">
                 <span class="badge badge-primary"><?= htmlspecialchars($_SESSION['full_name'] ?? 'Customer') ?></span>
             </div>
@@ -39,7 +39,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     
                     <!-- Left: Form -->
                     <div>
-                        <h3>Request Details</h3>
+                        <h3><?= __('request_details') ?></h3>
                         <form id="requestForm" style="margin-top: 20px;">
                             <!-- Hidden Fields for Coordinates -->
                             <input type="hidden" id="pickup_lat" name="pickup_lat">
@@ -50,18 +50,18 @@ $txRef = "TX-" . uniqid() . "-" . time();
                             <input type="hidden" id="calculated_price" name="price">
 
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Pickup Location</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('pickup_location') ?></label>
                                 <div class="input-group">
-                                    <input type="text" id="pickup_location" placeholder="Type address or click on map..." 
+                                    <input type="text" id="pickup_location" placeholder="<?= __('type_address_click_map') ?>" 
                                         onchange="geocodeAddress(this.value, 'pickup')"
                                         style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                                     <i data-feather="search" class="input-icon" onclick="geocodeAddress(document.getElementById('pickup_location').value, 'pickup')"></i>
                                 </div>
                             </div>
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Dropoff Location</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('dropoff_location') ?></label>
                                 <div class="input-group">
-                                    <input type="text" id="dropoff_location" placeholder="Type address or click on map..." 
+                                    <input type="text" id="dropoff_location" placeholder="<?= __('type_address_click_map') ?>" 
                                         onchange="geocodeAddress(this.value, 'dropoff')"
                                         style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
                                     <i data-feather="search" class="input-icon" onclick="geocodeAddress(document.getElementById('dropoff_location').value, 'dropoff')"></i>
@@ -69,48 +69,48 @@ $txRef = "TX-" . uniqid() . "-" . time();
                             </div>
                             
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Pickup Date</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('pickup_date') ?></label>
                                 <input type="date" id="pickup_date" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                             </div>
                             
-                            <h4 style="margin: 30px 0 15px; color: #0f172a;">Cargo Items</h4>
+                            <h4 style="margin: 30px 0 15px; color: #0f172a;"><?= __('cargo_items') ?></h4>
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Item Name</label>
-                                <input type="text" id="item_name" placeholder="e.g., Electronics" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('item_name') ?></label>
+                                <input type="text" id="item_name" placeholder="<?= __('electronics_placeholder') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                                 <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Quantity</label>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('quantity') ?></label>
                                     <input type="number" id="quantity" value="1" min="1" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                                 </div>
                                 <div>
-                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Weight (kg)</label>
-                                    <input type="number" id="weight" placeholder="e.g., 10" min="0.1" step="0.1" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('weight_kg') ?></label>
+                                    <input type="number" id="weight" placeholder="<?= __('weight_placeholder') ?>" min="0.1" step="0.1" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                                 </div>
                             </div>
                             
                             <!-- Vehicle Type Selection -->
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Vehicle Type</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('vehicle_type') ?></label>
                                 <select id="vehicle_type" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                    <option value="pickup">Pickup (Small)</option>
-                                    <option value="isuzu">Isuzu (Medium)</option>
-                                    <option value="trailer">Trailer (Large)</option>
+                                    <option value="pickup"><?= __('pickup_small') ?></option>
+                                    <option value="isuzu"><?= __('isuzu_medium') ?></option>
+                                    <option value="trailer"><?= __('trailer_large') ?></option>
                                 </select>
                             </div>
 
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Category</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('category') ?></label>
                                 <select id="category" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                    <option>Electronics</option>
-                                    <option>Furniture</option>
-                                    <option>Hardware</option>
-                                    <option>Other</option>
+                                    <option value="Electronics"><?= __('electronics') ?></option>
+                                    <option value="Furniture"><?= __('furniture') ?></option>
+                                    <option value="Hardware"><?= __('hardware') ?></option>
+                                    <option value="Other"><?= __('other') ?></option>
                                 </select>
                             </div>
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;">Description</label>
-                                <textarea id="description" rows="3" placeholder="Additional details..." style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('description') ?></label>
+                                <textarea id="description" rows="3" placeholder="<?= __('additional_details') ?>" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;"></textarea>
                             </div>
                         </form>
                     </div>
@@ -119,26 +119,26 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     <div style="position: sticky; top: 20px;">
                         <div id="map"></div>
                         <div style="text-align: center; margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">
-                            Click map to set <b>Pickup</b> (Green) then <b>Dropoff</b> (Red)
+                            <?= __('map_instruction') ?>
                         </div>
 
                         <div class="price-card">
-                            <h4>Estimated Cost</h4>
+                            <h4><?= __('estimated_cost') ?></h4>
                             <div class="price-row">
-                                <span>Distance:</span>
+                                <span><?= __('distance') ?></span>
                                 <span id="disp_distance">0 km</span>
                             </div>
                             <div class="price-row">
-                                <span>Weight:</span>
+                                <span><?= __('weight') ?></span>
                                 <span id="disp_weight">0 kg</span>
                             </div>
                             <div class="price-row price-total">
-                                <span>Total:</span>
+                                <span><?= __('total') ?></span>
                                 <span id="disp_price">0 ETB</span>
                             </div>
                             
                             <button type="button" id="submitBtn" onclick="submitRequest()" class="btn btn-primary" style="width: 100%; background: #16a34a; border-color: #16a34a; margin-top: 20px;">
-                                Submit Request
+                                <?= __('submit_request') ?>
                             </button>
                         </div>
                     </div>
@@ -199,11 +199,11 @@ $txRef = "TX-" . uniqid() . "-" . time();
 
                         map.setView(latlng, 14);
                     } else {
-                        alert("Location not found");
+                        alert("<?= __('location_not_found') ?>");
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Location search failed");
+                    alert("<?= __('location_search_failed') ?>");
                 }
             }
 
@@ -228,13 +228,13 @@ $txRef = "TX-" . uniqid() . "-" . time();
 
             function setPickup(latlng, fetchAddress = false) {
                 if (pickupMarker) map.removeLayer(pickupMarker);
-                pickupMarker = L.marker(latlng, {icon: createIcon('green')}).addTo(map).bindPopup("Pickup Location").openPopup();
+                pickupMarker = L.marker(latlng, {icon: createIcon('green')}).addTo(map).bindPopup("<?= __('pickup_location_popup') ?>").openPopup();
                 
                 document.getElementById('pickup_lat').value = latlng.lat;
                 document.getElementById('pickup_lng').value = latlng.lng;
                 
                 if (fetchAddress) {
-                    document.getElementById('pickup_location').value = "Loading address...";
+                    document.getElementById('pickup_location').value = "<?= __('loading') ?>";
                     reverseGeocode(latlng.lat, latlng.lng, 'pickup');
                 }
                 
@@ -243,13 +243,13 @@ $txRef = "TX-" . uniqid() . "-" . time();
 
             function setDropoff(latlng, fetchAddress = false) {
                 if (dropoffMarker) map.removeLayer(dropoffMarker);
-                dropoffMarker = L.marker(latlng, {icon: createIcon('red')}).addTo(map).bindPopup("Dropoff Location").openPopup();
+                dropoffMarker = L.marker(latlng, {icon: createIcon('red')}).addTo(map).bindPopup("<?= __('dropoff_location_popup') ?>").openPopup();
                 
                 document.getElementById('dropoff_lat').value = latlng.lat;
                 document.getElementById('dropoff_lng').value = latlng.lng;
                 
                 if (fetchAddress) {
-                    document.getElementById('dropoff_location').value = "Loading address...";
+                    document.getElementById('dropoff_location').value = "<?= __('loading') ?>";
                     reverseGeocode(latlng.lat, latlng.lng, 'dropoff');
                 }
                 
@@ -278,7 +278,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 const url = `https://router.project-osrm.org/route/v1/driving/${p.lng},${p.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`;
 
                 try {
-                    document.getElementById('disp_distance').innerText = "Calculating...";
+                    document.getElementById('disp_distance').innerText = "<?= __('calculating') ?>";
                     
                     const response = await fetch(url);
                     const data = await response.json();
@@ -301,11 +301,11 @@ $txRef = "TX-" . uniqid() . "-" . time();
                         
                         calculatePrice();
                     } else {
-                        alert("Could not find a road route between these locations.");
+                        alert("<?= __('no_road_route') ?>");
                     }
                 } catch (error) {
                     console.error("Routing error:", error);
-                    alert("Error calculating route. Please try again.");
+                    alert("<?= __('error_calculating_route') ?>");
                 }
             }
 
@@ -317,7 +317,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 
                 if (distance <= 0 || weight <= 0) return;
 
-                document.getElementById('disp_price').innerText = "Calculating...";
+                document.getElementById('disp_price').innerText = "<?= __('calculating') ?>";
 
                 try {
                     const res = await fetch('/cargo-project/backend/api/customer/calculate_price.php', {
@@ -338,7 +338,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                         document.getElementById('disp_price').innerText = data.price + " ETB";
                     } else {
                         console.error("Price calc error:", data.error);
-                        document.getElementById('disp_price').innerText = "Error";
+                        document.getElementById('disp_price').innerText = "<?= __('error') ?>";
                     }
                 } catch (err) {
                     console.error("Price fetch error:", err);
@@ -350,7 +350,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 const required = ['pickup_lat', 'dropoff_lat', 'pickup_date', 'item_name', 'weight'];
                 for (let id of required) {
                     if (!document.getElementById(id).value) {
-                        alert("Please fill all fields and select locations on map.");
+                        alert("<?= __('fill_all_fields') ?>");
                         return;
                     }
                 }
@@ -358,7 +358,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 const btn = document.getElementById('submitBtn');
                 const originalText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="spinner-small"></i> Processing...';
+                btn.innerHTML = '<i class="spinner-small"></i> <?= __('processing') ?>';
 
                 // 2. Submit to Backend First
                 const payload = {
@@ -390,7 +390,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                     const result = await response.json();
 
                     if (result.success && result.payment_url) {
-                        btn.innerHTML = '<i class="spinner-small"></i> Redirecting to Payment...';
+                        btn.innerHTML = '<i class="spinner-small"></i> <?= __('redirecting_to_payment') ?>';
                         // Redirect to Chapa Payment Page
                         window.location.href = result.payment_url;
                     } else {

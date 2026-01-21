@@ -14,9 +14,9 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
     <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h2>Notifications</h2>
+            <h2><?= __('notifications') ?></h2>
             <button class="btn btn-secondary" onclick="markAllAsRead()">
-                Mark all as read
+                <?= __('mark_all_read') ?>
             </button>
         </header>
 
@@ -106,7 +106,7 @@ async function fetchNotifications() {
         list.innerHTML = '';
 
         if (!json.success || json.data.length === 0) {
-            list.innerHTML = `<div style="text-align:center;color:#64748b;padding:40px;">No notifications</div>`;
+            list.innerHTML = `<div style="text-align:center;color:#64748b;padding:40px;"><?= __('no_notifications') ?></div>`;
             updateNavbarCount(0);
             return;
         }
@@ -137,7 +137,7 @@ async function fetchNotifications() {
         updateNavbarCount(unreadCount);
 
     } catch (e) {
-        list.innerHTML = `<div style="text-align:center;color:red;">Failed to load notifications</div>`;
+        list.innerHTML = `<div style="text-align:center;color:red;"><?= __('failed_load_notifications') ?></div>`;
     }
 }
 
@@ -186,10 +186,10 @@ function updateNavbarCount(count) {
 /* Time ago */
 function timeAgo(dateStr) {
     const sec = Math.floor((new Date() - new Date(dateStr)) / 1000);
-    if (sec < 60) return 'Just now';
-    if (sec < 3600) return Math.floor(sec/60) + ' minutes ago';
-    if (sec < 86400) return Math.floor(sec/3600) + ' hours ago';
-    return Math.floor(sec/86400) + ' days ago';
+    if (sec < 60) return "<?= __('just_now') ?>";
+    if (sec < 3600) return Math.floor(sec/60) + " <?= __('minutes_ago') ?>";
+    if (sec < 86400) return Math.floor(sec/3600) + " <?= __('hours_ago') ?>";
+    return Math.floor(sec/86400) + " <?= __('days_ago') ?>";
 }
 
 fetchNotifications();

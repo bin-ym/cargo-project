@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../../backend/config/languages.php';
+?>
 <style>
 /* ===== Navbar ===== */
 nav {
@@ -84,6 +87,30 @@ nav {
     background: #fee2e2;
     border-color: #fecaca;
 }
+
+/* Language Switcher */
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 15px;
+}
+.lang-btn {
+    padding: 4px 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.2s;
+}
+.lang-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
 </style>
 
 <nav>
@@ -96,33 +123,37 @@ nav {
     <div class="nav-links">
         <a href="/cargo-project/frontend/customer/new_request.php"
            class="<?= basename($_SERVER['PHP_SELF']) == 'new_request.php' ? 'active' : '' ?>">
-            <i data-feather="plus-circle" width="18"></i> New Request
+            <i data-feather="plus-circle" width="18"></i> <?= __('new_request') ?>
         </a>
 
         <a href="/cargo-project/frontend/customer/my_requests.php"
            class="<?= basename($_SERVER['PHP_SELF']) == 'my_requests.php' ? 'active' : '' ?>">
-            <i data-feather="list" width="18"></i> My Requests
+            <i data-feather="list" width="18"></i> <?= __('my_requests') ?>
         </a>
 
         <a href="/cargo-project/frontend/customer/notifications.php"
            class="<?= basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : '' ?>">
             <i data-feather="bell" width="18"></i>
-            Notifications
+            <?= __('notifications') ?>
             <span id="notificationCount" class="notification-badge"></span>
         </a>
 
         <a href="/cargo-project/frontend/customer/profile.php"
            class="<?= basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '' ?>">
-            <i data-feather="user" width="18"></i> Profile
+            <i data-feather="user" width="18"></i> <?= __('profile') ?>
         </a>
     </div>
 
     <div class="user-menu">
+        <div class="lang-switcher">
+            <button class="lang-btn <?= $_SESSION['lang'] == 'en' ? 'active' : '' ?>" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn <?= $_SESSION['lang'] == 'am' ? 'active' : '' ?>" onclick="setLanguage('am')">አማ</button>
+        </div>
         <span style="font-weight:600; color:var(--secondary);">
-            Hi, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?>
+            <?= __('hi') ?>, <?= htmlspecialchars($_SESSION['username'] ?? 'Customer'); ?>
         </span>
         <a href="/cargo-project/backend/api/auth/logout.php" class="btn-logout">
-            Logout
+            <?= __('logout') ?>
         </a>
     </div>
 </nav>
@@ -160,4 +191,20 @@ async function updateNotificationBadge() {
 
 updateNotificationBadge();
 setInterval(updateNotificationBadge, 30000);
+
+async function setLanguage(lang) {
+    try {
+        const res = await fetch('/cargo-project/backend/api/auth/set_language.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lang })
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error('Failed to set language:', err);
+    }
+}
 </script>

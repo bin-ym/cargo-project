@@ -27,7 +27,7 @@ $customer = $stmtCust->fetch();
 
     <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar" style="margin-bottom: 30px;">
-            <h2>My Profile</h2>
+            <h2><?= __('my_profile') ?></h2>
             <div class="user-info">
                 <span class="badge badge-primary">
                     <?= htmlspecialchars($_SESSION['full_name'] ?? 'Customer') ?>
@@ -37,49 +37,49 @@ $customer = $stmtCust->fetch();
 
         <!-- Profile Form -->
         <div class="recent-activity-card">
-            <h3>Personal Information</h3>
+            <h3><?= __('personal_information') ?></h3>
 
             <form id="profileForm" class="profile-form" style="margin-top: 20px;">
 
     <div class="form-item">
-        <label for="name">Full Name</label>
+        <label for="name"><?= __('full_name') ?></label>
         <input type="text" id="name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>">
     </div>
 
     <div class="form-item">
-        <label for="username">Username</label>
+        <label for="username"><?= __('username') ?></label>
         <input type="text" id="username" value="<?= htmlspecialchars($user['username'] ?? '') ?>">
     </div>
 
     <div class="form-item">
-        <label for="email">Email</label>
+        <label for="email"><?= __('email') ?></label>
         <input type="email" id="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" readonly>
     </div>
 
     <div class="form-item">
-        <label for="phone">Phone Number</label>
+        <label for="phone"><?= __('phone_number') ?></label>
         <input type="tel" id="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
     </div>
 
     <div class="form-item">
-        <label for="city">City</label>
-        <input type="text" id="city" value="<?= htmlspecialchars($customer['city'] ?? '') ?>" placeholder="Enter your city">
+        <label for="city"><?= __('city') ?></label>
+        <input type="text" id="city" value="<?= htmlspecialchars($customer['city'] ?? '') ?>" placeholder="<?= __('enter_city') ?>">
     </div>
 
     <div class="form-item">
-        <label for="address">Address</label>
-        <input type="text" id="address" value="<?= htmlspecialchars($customer['address'] ?? '') ?>" placeholder="Enter your address">
+        <label for="address"><?= __('address') ?></label>
+        <input type="text" id="address" value="<?= htmlspecialchars($customer['address'] ?? '') ?>" placeholder="<?= __('enter_address') ?>">
     </div>
 
     <!-- Password full width -->
     <div class="form-item full-row">
-        <label for="password">New Password</label>
-        <input type="password" id="password" placeholder="Leave blank to keep current password">
+        <label for="password"><?= __('new_password') ?></label>
+        <input type="password" id="password" placeholder="<?= __('password_blank_msg') ?>">
     </div>
 
     <!-- Submit full width -->
     <div class="actions full-row">
-        <button type="submit" class="btn btn-primary">Update Profile</button>
+        <button type="submit" class="btn btn-primary"><?= __('update_profile') ?></button>
     </div>
 
 </form>
@@ -94,7 +94,7 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     const btn = e.target.querySelector('button');
     const originalText = btn.innerText;
 
-    btn.innerText = 'Updating...';
+    btn.innerText = "<?= __('updating') ?>";
     btn.disabled = true;
 
     const payload = {
@@ -116,14 +116,14 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.success) {
-            alert('Profile updated successfully!');
+            alert("<?= __('profile_updated_success') ?>");
             location.reload();
         } else {
             alert('Error: ' + result.error);
         }
     } catch (error) {
         console.error(error);
-        alert('An error occurred while updating profile.');
+        alert("<?= __('profile_update_error') ?>");
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;

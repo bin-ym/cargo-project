@@ -18,7 +18,7 @@ $user = $stmt->fetch();
     <?php include 'sidebar.php'; ?>
     <main class="main-content">
         <header class="topbar">
-            <h2>My Profile</h2>
+            <h2><?= __('my_profile') ?></h2>
             <div class="user-info">
                 <span><?= htmlspecialchars($_SESSION['full_name'] ?? 'Transporter') ?></span>
             </div>
@@ -26,24 +26,24 @@ $user = $stmt->fetch();
 
         <div class="content">
             <div class="recent-activity" style="max-width: 600px;">
-                <h3>Personal Information</h3>
+                <h3><?= __('personal_information') ?></h3>
                 <form class="mt-20" id="profileForm">
                     <div class="form-group">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label"><?= __('full_name') ?></label>
                         <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" class="form-control" pattern="[A-Za-z\s]+" title="Letters and spaces only" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Email</label>
+                        <label class="form-label"><?= __('email') ?></label>
                         <input type="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" readonly class="form-control">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Phone</label>
+                        <label class="form-label"><?= __('phone') ?></label>
                         <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" class="form-control" pattern="[0-9]+" title="Numbers only" required>
                     </div>
                     <p class="info-box">
-                        <strong>Note:</strong> Plate Number and Vehicle Type will be assigned by the admin when you receive delivery assignments.
+                        <?= __('transporter_profile_note') ?>
                     </p>
-                    <button type="submit" class="btn btn-primary" id="saveBtn">Update Profile</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn"><?= __('update_profile') ?></button>
                 </form>
             </div>
         </div>
@@ -56,7 +56,7 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     
     const btn = document.getElementById('saveBtn');
     const originalText = btn.innerText;
-    btn.innerText = 'Saving...';
+    btn.innerText = "<?= __('saving') ?>";
     btn.disabled = true;
 
     const payload = {
@@ -73,14 +73,14 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
         const result = await res.json();
 
         if (result.success) {
-            alert('Profile updated successfully');
+            alert("<?= __('profile_updated_success') ?>");
             location.reload();
         } else {
-            alert(result.error || 'Update failed');
+            alert(result.error || "<?= __('update_failed') ?>");
         }
     } catch (err) {
         console.error(err);
-        alert('An error occurred');
+        alert("<?= __('error_occurred') ?>");
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
@@ -89,4 +89,4 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
 feather.replace();
 </script>
 
-<!-- <?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?> -->
+<?php require_once __DIR__ . '/../layout/footer_dashboard.php'; ?>

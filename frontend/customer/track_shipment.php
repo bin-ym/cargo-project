@@ -106,37 +106,37 @@ $requestId = $_GET['id'] ?? 0;
 
     <main class="main-content track-main">
         <header class="topbar" style="margin-bottom: 24px;">
-            <h2>Track Shipment #CT-<?= str_pad($requestId, 4, '0', STR_PAD_LEFT) ?></h2>
+            <h2><?= __('track_shipment_title') ?>#CT-<?= str_pad($requestId, 4, '0', STR_PAD_LEFT) ?></h2>
         </header>
 
         <div class="tracking-wrapper">
             <!-- LEFT: STATUS -->
             <div class="left-panel">
-                <h3 style="margin-bottom: 20px;">Shipment Status</h3>
+                <h3 style="margin-bottom: 20px;"><?= __('shipment_status') ?></h3>
 
                 <div class="timeline-item" id="step-submitted">
-                    <h4>Request Submitted</h4>
-                    <p>Your request has been received</p>
+                    <h4><?= __('request_submitted') ?></h4>
+                    <p><?= __('request_received_msg') ?></p>
                 </div>
 
                 <div class="timeline-item" id="step-approved">
-                    <h4>Request Approved</h4>
-                    <p>Admin approved your request</p>
+                    <h4><?= __('request_approved') ?></h4>
+                    <p><?= __('admin_approved_msg') ?></p>
                 </div>
 
                 <div class="timeline-item" id="step-assigned">
-                    <h4>Transporter Assigned</h4>
-                    <p id="transporterName">Pending</p>
+                    <h4><?= __('transporter_assigned') ?></h4>
+                    <p id="transporterName"><?= __('pending') ?></p>
                 </div>
 
                 <div class="timeline-item" id="step-transit">
-                    <h4>In Transit</h4>
-                    <p>Shipment is on the way</p>
+                    <h4><?= __('in_transit') ?></h4>
+                    <p><?= __('in_transit_msg') ?></p>
                 </div>
 
                 <div class="timeline-item" id="step-delivered">
-                    <h4>Delivered</h4>
-                    <p>Shipment delivered</p>
+                    <h4><?= __('completed') ?></h4>
+                    <p><?= __('delivered_msg') ?></p>
                 </div>
             </div>
 
@@ -184,7 +184,7 @@ function updateTimeline(d) {
     if (['assigned','in-transit','delivered'].includes(d.shipment_status)) {
         document.getElementById('step-approved').classList.add('completed');
         document.getElementById('step-assigned').classList.add('completed');
-        document.getElementById('transporterName').innerText = d.transporter_name || 'Assigned';
+        document.getElementById('transporterName').innerText = d.transporter_name || '<?= __('assigned') ?>';
     }
 
     if (['in-transit','delivered'].includes(d.shipment_status))

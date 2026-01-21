@@ -14,30 +14,30 @@ require_once __DIR__ . '/../layout/header_customer.php';
 
     <main class="main-content" style="padding: 30px 5%; max-width: 1200px; margin: 0 auto;">
         <header class="topbar" style="margin-bottom: 30px;">
-            <h2>My Requests</h2>
+            <h2><?= __('my_requests') ?></h2>
         </header>
 
         <div class="content">
             <!-- Status Cards -->
             <div class="status-cards">
                 <div class="card card-total">
-                    <h3>Total Requests</h3>
+                    <h3><?= __('total_requests') ?></h3>
                     <p id="count-total">0</p>
                 </div>
                 <div class="card card-pending">
-                    <h3>Pending</h3>
+                    <h3><?= __('pending') ?></h3>
                     <p id="count-pending">0</p>
                 </div>
                 <div class="card card-approved">
-                    <h3>Approved</h3>
+                    <h3><?= __('approved') ?></h3>
                     <p id="count-approved">0</p>
                 </div>
                 <div class="card card-intransit">
-                    <h3>In Transit</h3>
+                    <h3><?= __('in_transit') ?></h3>
                     <p id="count-intransit">0</p>
                 </div>
                 <div class="card card-completed">
-                    <h3>Completed</h3>
+                    <h3><?= __('completed') ?></h3>
                     <p id="count-completed">0</p>
                 </div>
             </div>
@@ -45,26 +45,26 @@ require_once __DIR__ . '/../layout/header_customer.php';
             <!-- Tabs & Search -->
             <div class="table-controls">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="filterByTab('all')">All</button>
-                    <button class="tab-btn" onclick="filterByTab('pending')">Pending</button>
-                    <button class="tab-btn" onclick="filterByTab('approved')">Approved</button>
-                    <button class="tab-btn" onclick="filterByTab('in-transit')">In Transit</button>
-                    <button class="tab-btn" onclick="filterByTab('delivered')">Completed</button>
+                    <button class="tab-btn active" onclick="filterByTab('all')"><?= __('all') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('pending')"><?= __('pending') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('approved')"><?= __('approved') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('in-transit')"><?= __('in_transit') ?></button>
+                    <button class="tab-btn" onclick="filterByTab('delivered')"><?= __('completed') ?></button>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search requests..." class="search-box">
+                <input type="text" id="searchInput" placeholder="<?= __('search_requests') ?>" class="search-box">
             </div>
 
             <div class="table-wrapper">
                 <table class="table-modern" id="dataTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Pickup</th>
-                            <th>Dropoff</th>
-                            <th>Date</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th class="row-action">Action</th>
+                            <th><?= __('id') ?></th>
+                            <th><?= __('pickup') ?></th>
+                            <th><?= __('dropoff') ?></th>
+                            <th><?= __('date') ?></th>
+                            <th><?= __('price') ?></th>
+                            <th><?= __('status') ?></th>
+                            <th class="row-action"><?= __('action') ?></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -78,12 +78,12 @@ require_once __DIR__ . '/../layout/header_customer.php';
 <div id="ratingModal" class="modal" style="display:none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Rate Transporter</h3>
+            <h3><?= __('rate_transporter') ?></h3>
             <span class="close" onclick="closeRatingModal()">&times;</span>
         </div>
         <form id="ratingForm">
             <div class="form-group">
-                <label>Rating</label>
+                <label><?= __('rating') ?></label>
                 <div class="star-rating">
                     <span class="star" data-rating="1">★</span>
                     <span class="star" data-rating="2">★</span>
@@ -94,12 +94,12 @@ require_once __DIR__ . '/../layout/header_customer.php';
                 <input type="hidden" id="ratingValue" required>
             </div>
             <div class="form-group">
-                <label for="comment">Comment (Optional)</label>
+                <label for="comment"><?= __('comment_optional') ?></label>
                 <textarea id="comment" rows="4" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;"></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeRatingModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                <button type="button" class="btn btn-secondary" onclick="closeRatingModal()"><?= __('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= __('submit_rating') ?></button>
             </div>
         </form>
     </div>
@@ -180,7 +180,7 @@ function renderTable(requests) {
     tbody.innerHTML = '';
 
     if (requests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No requests found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;"><?= __('no_requests_found') ?></td></tr>';
         return;
     }
 
@@ -190,7 +190,7 @@ function renderTable(requests) {
         const isPending = (req.status === 'pending');
         
         // Check if already rated
-        let actionButton = `<a href="track_shipment.php?id=${req.id}" class="btn-small btn-view" style="margin-right: 5px; background:#3b82f6; color:white; text-decoration:none; padding:6px 12px; border-radius:6px;">Track</a>`;
+        let actionButton = `<a href="track_shipment.php?id=${req.id}" class="btn-small btn-view" style="margin-right: 5px; background:#3b82f6; color:white; text-decoration:none; padding:6px 12px; border-radius:6px;"><?= __('track') ?></a>`;
         
         if (isCompleted) {
             try {
@@ -198,9 +198,9 @@ function renderTable(requests) {
                 const ratingData = await ratingRes.json();
                 
                 if (ratingData.success && !ratingData.hasRated) {
-                    actionButton += ` <button onclick="openRatingModal(${req.id})" class="btn-small" style="background:#16a34a; color:white; border:none; padding:6px 12px; border-radius:6px; margin-left:5px; cursor:pointer;">Rate</button>`;
+                    actionButton += ` <button onclick="openRatingModal(${req.id})" class="btn-small" style="background:#16a34a; color:white; border:none; padding:6px 12px; border-radius:6px; margin-left:5px; cursor:pointer;"><?= __('rate') ?></button>`;
                 } else if (ratingData.hasRated) {
-                    actionButton += ` <span style="color:#16a34a; margin-left:10px; font-size:12px;">★ Rated</span>`;
+                    actionButton += ` <span style="color:#16a34a; margin-left:10px; font-size:12px;">★ <?= __('rated') ?></span>`;
                 }
             } catch (e) {
                 console.error('Error checking rating:', e);
@@ -209,7 +209,7 @@ function renderTable(requests) {
         
         // Add delete button for pending requests
         if (isPending) {
-            actionButton += ` <button onclick="deleteRequest(${req.id})" class="btn-small" style="background:#dc2626; color:white; border:none; padding:6px 12px; border-radius:6px; margin-left:5px; cursor:pointer;">Delete</button>`;
+            actionButton += ` <button onclick="deleteRequest(${req.id})" class="btn-small" style="background:#dc2626; color:white; border:none; padding:6px 12px; border-radius:6px; margin-left:5px; cursor:pointer;"><?= __('delete') ?></button>`;
         }
         
         tbody.innerHTML += `
@@ -315,7 +315,7 @@ document.getElementById('ratingForm').addEventListener('submit', async (e) => {
     const comment = document.getElementById('comment').value;
     
     if (!rating) {
-        alert('Please select a rating');
+        alert("<?= __('select_rating_error') ?>");
         return;
     }
     
@@ -333,7 +333,7 @@ document.getElementById('ratingForm').addEventListener('submit', async (e) => {
         const result = await res.json();
         
         if (result.success) {
-            alert('Thank you for your rating!');
+            alert("<?= __('thank_you_rating') ?>");
             closeRatingModal();
             loadRequests(); // Reload to update UI
         } else {
@@ -347,7 +347,7 @@ document.getElementById('ratingForm').addEventListener('submit', async (e) => {
 
 // Delete Request Function
 async function deleteRequest(requestId) {
-    if (!confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+    if (!confirm("<?= __('delete_request_confirm') ?>")) {
         return;
     }
     
@@ -361,7 +361,7 @@ async function deleteRequest(requestId) {
         const result = await res.json();
         
         if (result.success) {
-            alert('Request deleted successfully!');
+            alert("<?= __('request_deleted_success') ?>");
             loadRequests(); // Reload table
         } else {
             alert('Error: ' + result.error);

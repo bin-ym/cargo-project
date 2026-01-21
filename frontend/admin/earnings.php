@@ -12,47 +12,47 @@ require_once __DIR__ . '/../layout/header_admin.php';
 <div class="dashboard">
     <main class="main-content">
         <header class="topbar">
-            <h2>Earnings Overview</h2>
+            <h2><?= __('earnings_overview') ?></h2>
         </header>
 
         <div class="content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Total Revenue (Gross)</h3>
+                    <h3><?= __('total_revenue_gross') ?></h3>
                     <p class="stat-number" id="totalRevenue">--</p>
-                    <div class="stat-trend up">From customers</div>
+                    <div class="stat-trend up"><?= __('from_customers') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Net Profit (20%)</h3>
+                    <h3><?= __('net_profit_20') ?></h3>
                     <p class="stat-number" id="netProfit">--</p>
-                    <div class="stat-trend up">After transporter commission</div>
+                    <div class="stat-trend up"><?= __('after_transporter_commission') ?></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Total Requests</h3>
+                    <h3><?= __('total_requests') ?></h3>
                     <p class="stat-number" id="totalRequests">--</p>
-                    <div class="stat-trend">Paid requests</div>
+                    <div class="stat-trend"><?= __('paid_requests') ?></div>
                 </div>
             </div>
 
             <div class="recent-activity" style="margin-top: 30px;">
-                <h3>Revenue by Month (Last 6 Months)</h3>
+                <h3><?= __('revenue_by_month') ?></h3>
                 <canvas id="earningsChart" style="max-height: 300px; padding: 20px;"></canvas>
             </div>
 
             <div class="table-wrapper" style="margin-top: 30px;">
-                <h3>Recent Transactions</h3>
+                <h3><?= __('recent_transactions') ?></h3>
                 <table class="table-modern" style="margin-top: 15px;">
                     <thead>
                         <tr>
-                            <th>Request ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Date</th>
+                            <th><?= __('request_id') ?></th>
+                            <th><?= __('customer') ?></th>
+                            <th><?= __('amount') ?></th>
+                            <th><?= __('date') ?></th>
                         </tr>
                     </thead>
                     <tbody id="transactionsBody">
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 20px;">Loading...</td>
+                            <td colspan="4" style="text-align: center; padding: 20px;"><?= __('loading') ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -88,7 +88,7 @@ async function loadEarnings() {
                 data: {
                     labels: months,
                     datasets: [{
-                        label: 'Revenue (ETB)',
+                        label: '<?= __('revenue_label') ?>',
                         data: revenues,
                         backgroundColor: 'rgba(37, 99, 235, 0.8)',
                         borderColor: 'rgba(37, 99, 235, 1)',
@@ -117,7 +117,7 @@ async function loadEarnings() {
             tbody.innerHTML = '';
 
             if (data.recentTransactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">No transactions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;"><?= __('no_transactions_found') ?></td></tr>';
             } else {
                 data.recentTransactions.forEach(t => {
                     tbody.innerHTML += `
@@ -139,5 +139,3 @@ async function loadEarnings() {
 loadEarnings();
 feather.replace();
 </script>
-
-
