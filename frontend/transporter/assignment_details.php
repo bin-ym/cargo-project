@@ -87,7 +87,7 @@ if ($requestId && !is_numeric($requestId)) {
 <script>
 const requestId = '<?= htmlspecialchars($_GET['id'] ?? '') ?>';
 if (!requestId) {
-    alert('Invalid Request ID');
+    showError('Invalid Request ID');
     window.location.href = 'assignments.php';
 }
 const API_URL = '/cargo-project/backend/api/cargo_items/index.php';
@@ -211,9 +211,10 @@ async function updateMapWithRoute(data) {
             feather.replace();
 
             // Car Animation if in-transit
-            if (data.shipment_status === 'in-transit') {
-                const animDuration = Math.min(60, Math.max(15, duration / 60));
-                startCarAnimation(latLngs, animDuration);
+            if (data.shipment_status === 'in-transit' && data.picked_up_at) {
+                const pickupTime = new Date(data.picked_up_at).getTime();
+                const now = new Date().getTime();
+                startRealTimeAnimation(latLngs, pickupTime, duration);
             }
         } else {
             // Fallback to straight line
@@ -269,7 +270,7 @@ function renderTable(data) {
 let carMarker = null;
 let animationFrame = null;
 
-function startCarAnimation(latLngs, durationSeconds) {
+function startRealTimeAnimation(latLngs, startTimeMs, totalDurationSec) {
     if (carMarker) map.removeLayer(carMarker);
     if (animationFrame) cancelAnimationFrame(animationFrame);
 
@@ -283,35 +284,36 @@ function startCarAnimation(latLngs, durationSeconds) {
     carMarker = L.marker(latLngs[0], { icon: carIcon }).addTo(map);
     feather.replace();
 
-    let step = 0;
-    const totalSteps = latLngs.length;
-    
-    // We want the animation to take 'durationSeconds'
-    // requestAnimationFrame runs at ~60fps
-    // totalFrames = durationSeconds * 60
-    // stepIncrement = totalSteps / totalFrames
-    const totalFrames = (durationSeconds || 30) * 60; 
-    const stepIncrement = totalSteps / totalFrames;
-
     function animate() {
-        if (step >= totalSteps) {
-            step = 0; 
-        }
+        const now = Date.now();
+        const elapsedSec = (now - startTimeMs) / 1000;
+        let progress = elapsedSec / totalDurationSec;
 
-        carMarker.setLatLng(latLngs[Math.floor(step)]);
+        if (progress < 0) progress = 0;
+        if (progress > 1) progress = 1;
+
+        // Find index
+        const indexFloat = (latLngs.length - 1) * progress;
+        const index = Math.floor(indexFloat);
         
-        if (step + 1 < totalSteps) {
-            const nextPoint = latLngs[Math.floor(step) + 1];
-            const currPoint = latLngs[Math.floor(step)];
-            const angle = Math.atan2(nextPoint[0] - currPoint[0], nextPoint[1] - currPoint[1]) * 180 / Math.PI;
-            const iconElement = carMarker.getElement().querySelector('i');
-            if (iconElement) {
-                iconElement.style.transform = `rotate(${angle + 90}deg)`;
-            }
+        carMarker.setLatLng(latLngs[index]);
+        
+        // Rotate Car
+        if (index + 1 < latLngs.length) {
+             const curr = latLngs[index];
+             const next = latLngs[index + 1];
+             const angle = Math.atan2(next[0] - curr[0], next[1] - curr[1]) * 180 / Math.PI;
+             const iconElement = carMarker.getElement().querySelector('i');
+             if (iconElement) {
+                 iconElement.style.transform = `rotate(${angle + 90}deg)`;
+             }
         }
 
-        step += stepIncrement;
-        animationFrame = requestAnimationFrame(animate);
+        if (progress < 1) {
+            animationFrame = requestAnimationFrame(animate);
+        } else {
+             // Arrived
+        }
     }
 
     animate();
@@ -329,14 +331,14 @@ async function updateStatus(status) {
         
         const result = await res.json();
         if (result.success) {
-            alert("Status updated successfully!");
+            showSuccess("Status updated successfully!");
             window.location.reload();
         } else {
-            alert("Error: " + result.error);
+            showError("Error: " + result.error);
         }
     } catch (err) {
         console.error(err);
-        alert("Update failed");
+        showError("Update failed");
     }
 }
 
@@ -349,7 +351,7 @@ function toggleLocationSharing() {
     
     if (!isSharing) {
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
+            showError("Geolocation is not supported by your browser");
             return;
         }
 
@@ -387,7 +389,7 @@ function toggleLocationSharing() {
                         errorMsg += "An unknown error occurred.";
                 }
                 
-                alert(errorMsg);
+                showError(errorMsg);
                 toggleLocationSharing(); // Stop
             },
             { 

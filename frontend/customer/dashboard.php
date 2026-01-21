@@ -190,13 +190,13 @@ async function initiatePayment(requestId) {
             btn.innerHTML = '<i class="spinner-small"></i> <?= __('redirecting') ?>';
             window.location.href = data.payment_url;
         } else {
-            alert("Payment Error: " + data.error);
+            showError("Payment Error: " + data.error);
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     } catch (err) {
         console.error(err);
-        alert("An error occurred.");
+        showError("An error occurred.");
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
@@ -218,18 +218,18 @@ async function verifyPayment(ref) {
         const result = await response.json();
 
         if (result.success) {
-            alert("<?= __('payment_success') ?>");
+            showSuccess("<?= __('payment_success') ?>");
             // Clean URL and reload by navigating to the base path
             window.location.href = window.location.pathname;
         } else {
             console.error(result.error);
-            alert("<?= __('payment_failed') ?>" + (result.error || "Unknown error"));
+            showError("<?= __('payment_failed') ?>" + (result.error || "Unknown error"));
             // Clean URL even on failure to avoid loops
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     } catch (err) {
         console.error("Verification error:", err);
-        alert("<?= __('verification_error') ?>");
+        showError("<?= __('verification_error') ?>");
     }
 }
 

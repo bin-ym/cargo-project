@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = await res.json();
 
             if (!json.success) {
-                alert(json.error || 'Failed to load vehicles');
+                showError(json.error || '<?= __('failed_to_load_vehicles') ?>');
                 return;
             }
 
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const json = await res.json();
             if (!json.success) {
-                alert(json.error || 'Operation failed');
+                showError(json.error || '<?= __('operation_failed') ?>');
                 return;
             }
 
@@ -230,8 +230,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const json = await res.json();
-            if (json.success) loadVehicles();
-            else alert(json.error || 'Delete failed');
+            if (json.success) {
+                loadVehicles();
+                showSuccess('<?= __('vehicle_deleted_success') ?>');
+            } else {
+                showError(json.error || '<?= __('delete_failed') ?>');
+            }
         } catch (err) {
             console.error("Delete error:", err);
         }

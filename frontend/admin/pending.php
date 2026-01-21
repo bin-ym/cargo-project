@@ -115,7 +115,7 @@ async function updateStatus(id, status) {
             });
             const result = await response.json();
             if (result.success) fetchRequests();
-            else alert("Error: " + result.error);
+            else showError("<?= __('error_label') ?>: " + result.error);
         } catch (error) { console.error("Error updating status:", error); }
     }
 }

@@ -156,7 +156,7 @@ if ($requestId && !is_numeric($requestId)) {
 <script>
 const requestId = '<?= htmlspecialchars($_GET['id'] ?? '') ?>';
 if (!requestId) {
-    alert('Invalid Request ID');
+    showError('Invalid Request ID');
     window.location.href = 'my_requests.php';
 }
 let map;
@@ -226,22 +226,49 @@ async function drawRoute(d) {
         map.fitBounds(line.getBounds(), { padding: [40, 40] });
 
         // Display ETA
-        const duration = route.duration;
+        const duration = route.duration; // Total duration in seconds
         const minutes = Math.round(duration / 60);
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;
         const etaText = hours > 0 ? `${hours}h ${remainingMinutes}m` : `${minutes}m`;
         
+        const infoDiv = document.querySelector('.tracking-info') || document.querySelector('.left-panel'); // Fallback selector
+        
+        const existingBadge = document.getElementById('eta-badge');
+        if(existingBadge) existingBadge.remove();
+
         const etaBadge = document.createElement('div');
+        etaBadge.id = 'eta-badge';
         etaBadge.style.cssText = "margin-top: 10px; padding: 10px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; color: #1e40af; font-size: 14px; display: flex; align-items: center; gap: 8px;";
-        etaBadge.innerHTML = `<i data-feather="clock" style="width: 16px; height: 16px;"></i> <b>Est. Arrival:</b> ${etaText}`;
-        document.querySelector('.tracking-info').appendChild(etaBadge);
+        etaBadge.innerHTML = `<i data-feather="clock" style="width: 16px; height: 16px;"></i> <b>Est. Duration:</b> ${etaText}`;
+        infoDiv.appendChild(etaBadge);
         if (typeof feather !== 'undefined') feather.replace();
 
         // Car Animation if in-transit
-        if (d.shipment_status === 'in-transit') {
-            const animDuration = Math.min(60, Math.max(15, duration / 60));
-            startCarAnimation(points, animDuration);
+        if (d.shipment_status === 'in-transit' && d.picked_up_at) {
+            // Calculate progress based on Real Time
+            const pickupTime = new Date(d.picked_up_at).getTime();
+            const now = new Date().getTime();
+            
+            // Allow for a slight visual delay or speedup for demo purposes if needed, 
+            // but user asked for "real" movement based on "ratio".
+            // So we use strict ratio: (Now - Start) / Duration
+            
+            // To make it visible for very long trips in this demo, usually we might speed it up.
+            // But the user requested "real... don't stop... continue".
+            // Implementation: We animate from CURRENT calculated position.
+            
+            startRealTimeAnimation(points, pickupTime, duration);
+        } else if (d.shipment_status === 'delivered' || d.shipment_status === 'completed') {
+             // Place car at end
+             const carIcon = L.divIcon({
+                html: '<i data-feather="check-circle" style="color: #16a34a; fill: white; width: 24px; height: 24px;"></i>',
+                className: 'car-icon',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            L.marker(points[points.length-1], { icon: carIcon }).addTo(map);
+            if (typeof feather !== 'undefined') feather.replace();
         }
     }
 }
@@ -249,47 +276,62 @@ async function drawRoute(d) {
 let carMarker = null;
 let animationFrame = null;
 
-function startCarAnimation(latLngs, durationSeconds) {
+function startRealTimeAnimation(latLngs, startTimeMs, totalDurationSec) {
     if (carMarker) map.removeLayer(carMarker);
     if (animationFrame) cancelAnimationFrame(animationFrame);
 
     const carIcon = L.divIcon({
         html: '<i data-feather="truck" style="color: #2563eb; fill: white; width: 24px; height: 24px;"></i>',
-        className: 'car-icon',
+        className: 'car-icon', // Ensure this class has no background in CSS or add inline style
         iconSize: [24, 24],
         iconAnchor: [12, 12]
     });
-
+    
+    // Add marker initially at start (will jump immediately in loop)
     carMarker = L.marker(latLngs[0], { icon: carIcon }).addTo(map);
     if (typeof feather !== 'undefined') feather.replace();
 
-    let step = 0;
-    const totalSteps = latLngs.length;
-    
-    const totalFrames = (durationSeconds || 30) * 60;
-    const stepIncrement = totalSteps / totalFrames;
-
     function animate() {
-        if (step >= totalSteps) {
-            step = 0; 
-        }
+        const now = Date.now();
+        const elapsedSec = (now - startTimeMs) / 1000;
+        let progress = elapsedSec / totalDurationSec;
 
-        carMarker.setLatLng(latLngs[Math.floor(step)]);
+        if (progress < 0) progress = 0;
+        if (progress > 1) progress = 1;
+
+        // Find index
+        // latLngs array length e.g. 500
+        // index = 500 * 0.5 = 250
+        const indexFloat = (latLngs.length - 1) * progress;
+        const index = Math.floor(indexFloat);
         
-        if (step + 1 < totalSteps) {
-            const nextPoint = latLngs[Math.floor(step) + 1];
-            const currPoint = latLngs[Math.floor(step)];
-            const angle = Math.atan2(nextPoint[0] - currPoint[0], nextPoint[1] - currPoint[1]) * 180 / Math.PI;
-            const iconElement = carMarker.getElement().querySelector('i');
-            if (iconElement) {
-                iconElement.style.transform = `rotate(${angle + 90}deg)`;
-            }
+        // Exact position interpolation could be better but nearest point is fine for high density paths
+        carMarker.setLatLng(latLngs[index]);
+
+        // Rotate Car
+        if (index + 1 < latLngs.length) {
+             const curr = latLngs[index];
+             const next = latLngs[index + 1];
+             // Simple bearing calculation
+             // lat/lng are in degrees. For visualization relative bearing is enough using screen coords or mercator
+             // but simpler: just standard atan2 on lat/lng works reasonably for short segments
+             const y = next[0] - curr[0];
+             const x = next[1] - curr[1];
+             const angle = Math.atan2(y, x) * 180 / Math.PI;
+             
+             const iconEl = carMarker.getElement().querySelector('i');
+             if(iconEl) iconEl.style.transform = `rotate(${angle}deg)`; // Adjust rotation offset if needed (usually truck icon points right or up)
+             // Feather truck icon usually points left/right? Let's assume standard right 0deg.
+             // If icon points left, verify rotation.
         }
 
-        step += stepIncrement;
-        animationFrame = requestAnimationFrame(animate);
+        if (progress < 1) {
+            animationFrame = requestAnimationFrame(animate);
+        } else {
+            console.log("Arrived");
+        }
     }
-
+    
     animate();
 }
 

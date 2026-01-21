@@ -1,9 +1,13 @@
+<?php
+require_once __DIR__ . '/../../backend/config/session.php';
+require_once __DIR__ . '/../../backend/config/languages.php';
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $_SESSION['lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - Cargo Connect</title>
+    <title><?= __('reset_password_title') ?> - Cargo Connect</title>
     <link rel="stylesheet" href="../css/public.css">
     <style>
         .auth-container {
@@ -41,23 +45,29 @@
 
 <div class="auth-container">
     <div class="auth-card">
-        <h2 style="text-align: center; margin-bottom: 10px;">Forgot Password?</h2>
-        <p style="text-align: center; color: #64748b; margin-bottom: 30px;">Enter your email to receive a reset link.</p>
+        <h2 style="text-align: center; margin-bottom: 10px;"><?= __('reset_password_title') ?></h2>
+        <p style="text-align: center; color: #64748b; margin-bottom: 30px;"><?= __('enter_email_reset') ?></p>
 
         <form id="forgotForm">
             <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="email" required placeholder="you@example.com">
+                <label><?= __('email') ?></label>
+                <input type="email" id="email" required placeholder="<?= __('email_placeholder') ?>">
             </div>
-            <button type="submit" class="btn">Send Reset Link</button>
+            <button type="submit" class="btn"><?= __('send_reset_link') ?></button>
             <div id="message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
         </form>
 
-        <a href="login.php" class="back-link">Back to Login</a>
+        <a href="login.php" class="back-link"><?= __('back_to_login') ?></a>
     </div>
 </div>
 
 <script>
+const translations = {
+    sending: "<?= __('sending') ?>",
+    sendLink: "<?= __('send_reset_link') ?>",
+    serverError: "<?= __('server_error_try_again') ?>"
+};
+
 document.getElementById('forgotForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button');
@@ -65,7 +75,7 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value;
 
     btn.disabled = true;
-    btn.innerText = 'Sending...';
+    btn.innerText = translations.sending;
     msg.innerText = '';
 
     try {
@@ -88,11 +98,11 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
         }
     } catch (err) {
         msg.style.color = 'red';
-        msg.innerText = 'Server error. Please try again.';
+        msg.innerText = translations.serverError;
     }
 
     btn.disabled = false;
-    btn.innerText = 'Send Reset Link';
+    btn.innerText = translations.sendLink;
 });
 </script>
 

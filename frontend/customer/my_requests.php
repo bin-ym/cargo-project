@@ -193,9 +193,69 @@ require_once __DIR__ . '/../layout/header_customer.php';
 }
 .modal-content {
     background: #fff;
+    padding: 0;
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    margin: 0;
+}
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #0f172a;
+    font-weight: 600;
+}
+.close {
+    font-size: 24px;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+}
+.close:hover {
+    color: #0f172a;
+}
+#ratingForm {
+    padding: 24px;
+}
+#ratingForm .form-group {
+    margin-bottom: 20px;
+}
+#ratingForm .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #334155;
+    font-size: 14px;
+}
+#ratingForm textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #0f172a;
+    resize: vertical;
+}
+#ratingForm textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 0;
 }
 
 /* Stars */
@@ -305,7 +365,7 @@ async function buildActions(req) {
     if (req.status === 'pending') {
         html += `
             <button class="btn-small" style="background:#dc2626"
-                    onclick="deleteRequest(${req.eid})">
+                    onclick="deleteRequest('${req.eid}')">
                 <?= __('delete') ?>
             </button>`;
     }
@@ -370,7 +430,7 @@ document.getElementById('ratingForm').onsubmit = async e => {
     e.preventDefault();
 
     const rating = document.getElementById('ratingValue').value;
-    if (!rating) return alert("<?= __('select_rating_error') ?>");
+    if (!rating) return showError("<?= __('select_rating_error') ?>");
 
     await fetch('/cargo-project/backend/api/customer/rate_transporter.php', {
         method: 'POST',
@@ -382,7 +442,7 @@ document.getElementById('ratingForm').onsubmit = async e => {
         })
     });
 
-    alert("<?= __('thank_you_rating') ?>");
+    showSuccess("<?= __('thank_you_rating') ?>");
     closeRatingModal();
     loadRequests();
 };
@@ -390,14 +450,25 @@ document.getElementById('ratingForm').onsubmit = async e => {
 async function deleteRequest(id) {
     if (!confirm("<?= __('delete_request_confirm') ?>")) return;
 
-    await fetch('/cargo-project/backend/api/customer/delete_request.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({request_id: id})
-    });
-
-    alert("<?= __('request_deleted_success') ?>");
-    loadRequests();
+    try {
+        const response = await fetch('/cargo-project/backend/api/customer/delete_request.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({request_id: id})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showSuccess("<?= __('request_deleted_success') ?>");
+            await loadRequests();
+        } else {
+            showError(result.error || 'Delete failed');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        showError('An error occurred while deleting the request');
+    }
 }
 
 loadRequests();

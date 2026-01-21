@@ -1,9 +1,13 @@
+<?php
+require_once __DIR__ . '/../../backend/config/session.php';
+require_once __DIR__ . '/../../backend/config/languages.php';
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $_SESSION['lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Cargo Connect</title>
+    <title><?= __('reset_password') ?> - Cargo Connect</title>
     <link rel="stylesheet" href="../css/public.css">
     <style>
         .auth-container {
@@ -44,31 +48,39 @@
 
 <div class="auth-container">
     <div class="auth-card">
-        <h2 style="text-align: center; margin-bottom: 30px;">Reset Password</h2>
+        <h2 style="text-align: center; margin-bottom: 30px;"><?= __('reset_password') ?></h2>
         <p style="text-align: center; color: #64748b; margin-bottom: 20px; font-size: 0.9rem;">
-            Enter the code sent to your email.
+            <?= __('enter_code_email') ?>
         </p>
 
         <form id="resetForm">
             <div class="input-group">
-                <label>Verification Code</label>
+                <label><?= __('verification_code') ?></label>
                 <input type="text" id="otp" class="otp-input" required placeholder="000000" maxlength="6" pattern="\d{6}">
             </div>
             <div class="input-group">
-                <label>New Password</label>
-                <input type="password" id="password" required minlength="6" placeholder="Enter new password">
+                <label><?= __('new_password') ?></label>
+                <input type="password" id="password" required minlength="6" placeholder="<?= __('enter_password') ?>">
             </div>
             <div class="input-group">
-                <label>Confirm Password</label>
-                <input type="password" id="confirmPassword" required minlength="6" placeholder="Confirm new password">
+                <label><?= __('confirm_password') ?></label>
+                <input type="password" id="confirmPassword" required minlength="6" placeholder="<?= __('confirm_password_placeholder') ?>">
             </div>
-            <button type="submit" class="btn">Reset Password</button>
+            <button type="submit" class="btn"><?= __('reset_password') ?></button>
             <div id="message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
         </form>
     </div>
 </div>
 
 <script>
+const translations = {
+    passwordsNotMatch: "<?= __('passwords_not_match') ?>",
+    resetting: "<?= __('resetting') ?>",
+    successMsg: "<?= __('reset_success_redirect') ?>",
+    serverError: "<?= __('server_error_try_again') ?>",
+    resetBtn: "<?= __('reset_password') ?>"
+};
+
 document.getElementById('resetForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button');
@@ -83,7 +95,7 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
 
     if (password !== confirm) {
         msg.style.color = 'red';
-        msg.innerText = 'Passwords do not match';
+        msg.innerText = translations.passwordsNotMatch;
         return;
     }
 
@@ -94,7 +106,7 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
     }
 
     btn.disabled = true;
-    btn.innerText = 'Resetting...';
+    btn.innerText = translations.resetting;
     msg.innerText = '';
 
     try {
@@ -107,19 +119,19 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
 
         if (data.success) {
             msg.style.color = 'green';
-            msg.innerText = 'Password reset successful! Redirecting...';
+            msg.innerText = translations.successMsg;
             setTimeout(() => location.href = 'login.php', 2000);
         } else {
             msg.style.color = 'red';
             msg.innerText = data.error || 'Reset failed';
             btn.disabled = false;
-            btn.innerText = 'Reset Password';
+            btn.innerText = translations.resetBtn;
         }
     } catch (err) {
         msg.style.color = 'red';
-        msg.innerText = 'Server error. Please try again.';
+        msg.innerText = translations.serverError;
         btn.disabled = false;
-        btn.innerText = 'Reset Password';
+        btn.innerText = translations.resetBtn;
     }
 });
 </script>

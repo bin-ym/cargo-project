@@ -26,146 +26,129 @@ require_once __DIR__ . '/../layout/navbar.php';
 
 <style>
 /* === Hero Section === */
-.register-hero {
-    min-height: 80vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 100px;
-    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-}
-
-/* === Card === */
-.register-card {
-    background: white;
-    border-radius: 24px;
-    padding: 36px;
-    max-width: 700px;
-    width: 100%;
-    margin-bottom: 80px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1),
-                0 10px 10px -5px rgba(0,0,0,0.04);
-}
-
-/* === Header === */
-.register-header {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-/* === Grid 2-column === */
-.register-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-}
-
-/* Full-width elements span 2 columns */
-.full-width {
-    grid-column: 1 / -1;
-    margin-bottom: 15px;
-}
-
-/* Input Styling */
-.input-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-    display: block;
-    color: #475569;
-}
-
-.input-group input,
-.input-group select {
-    width: 100%;
-    padding: 12px 42px 12px 12px; /* space for eye icon */
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    font-size: 0.95rem;
-}
-
-.input-group input::placeholder {
-    color: #94a3b8;
-    font-size: 0.9rem;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-    background: white;
-}
-
-/* Password toggle */
-.password-wrapper {
-    position: relative;
-}
-
-.password-wrapper input {
-    padding-right: 40px; /* space for the eye icon */
-}
-
-.password-wrapper span {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #94a3b8;
-}
-
-.password-wrapper span:hover {
-    color: #2563eb;
-}
-
-.password-strength {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-top: 4px;
-}
-
-/* Hide by default */
-.hidden {
-    display: none;
-}
-
-.btn {
-    display: inline-block;
-    width: 100%;
-    background: #2563eb;
-    color: white;
-    font-weight: 600;
-    border-radius: 12px;
-    padding: 12px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.btn:hover {
-    background: #1d4ed8;
-}
-
-/* Success/Error Message */
-#registerMessage {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-/* Mobile Responsive */
-@media (max-width: 640px) {
-    .register-grid {
-        grid-template-columns: 1fr;
+/* Unifying with Login Page Styles */
+    .register-hero {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 200px;
+        background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        font-family: 'Inter', sans-serif;
     }
-}
+
+    .register-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 700px;
+        width: 100%;
+        margin-bottom: 80px;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b; /* --secondary */
+        letter-spacing: -0.5px;
+    }
+
+    .register-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+    }
+
+    .input-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        color: #475569;
+    }
+
+    .input-group input,
+    .input-group select {
+        width: 100%;
+        padding: 12px 42px 12px 12px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: #2563eb; /* --primary */
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .btn {
+        display: inline-block;
+        width: 100%;
+        background: #2563eb; /* --primary */
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 14px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        font-size: 1rem;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        background: #1d4ed8; /* --primary-dark */
+        transform: translateY(-1px);
+    }
+
+    #registerMessage {
+        margin-top: 20px;
+        font-size: 0.95rem;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    /* Password strength & toggles */
+    .password-wrapper { position: relative; }
+    .password-wrapper span {
+        position: absolute;
+        right: 12px;
+        top: 38px; /* Adjusted for label height */
+        cursor: pointer;
+        color: #94a3b8;
+    }
+    .password-wrapper span:hover { color: #2563eb; }
+    .password-strength { font-size: 0.8rem; color: #64748b; margin-top: 5px; }
+    .hidden { display: none; }
+
+    /* Links */
+    .login-link {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .login-link:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+        .register-grid { grid-template-columns: 1fr; }
+        .register-card { padding: 24px; }
+    }
 </style>
 </head>
 

@@ -313,7 +313,7 @@ async function fetchDetails() {
             // Render Status Info & Actions
             renderStatusInfo(r);
         } else {
-            alert("Request not found or not paid.");
+            showError("<?= __('request_not_found') ?>");
             window.location.href = 'requests.php';
         }
     } catch (error) {
@@ -430,11 +430,11 @@ async function openAssignModal() {
             assignModal.style.display = "flex";
             feather.replace();
         } else {
-            alert("Failed to load transporters or vehicles");
+            showError("<?= __('failed_load_transporters_vehicles') ?>");
         }
     } catch (err) {
         console.error(err);
-        alert("Error loading data");
+        showError("<?= __('error_loading_data') ?>");
     }
 }
 
@@ -445,8 +445,8 @@ document.getElementById("assignForm").addEventListener("submit", async (e) => {
     const transporterId = document.getElementById("transporterSelect").value;
     const vehicleId = document.getElementById("vehicleSelect").value;
     
-    if (!transporterId) { alert("Please select a transporter"); return; }
-    if (!vehicleId) { alert("Please select a vehicle"); return; }
+    if (!transporterId) { showError("<?= __('select_transporter_error') ?>"); return; }
+    if (!vehicleId) { showError("<?= __('select_vehicle_error') ?>"); return; }
 
     try {
         const res = await fetch('/cargo-project/backend/api/admin/assign_transporter.php', {
@@ -460,13 +460,13 @@ document.getElementById("assignForm").addEventListener("submit", async (e) => {
         });
         const result = await res.json();
         if (result.success) {
-            alert("Transporter and vehicle assigned successfully!");
+            showSuccess("<?= __('transporter_assigned_success') ?>");
             closeAssignModal();
             window.location.reload();
         } else {
-            alert("Error: " + result.error);
+            showError("<?= __('error_label') ?>: " + result.error);
         }
-    } catch (err) { console.error(err); alert("Assignment failed"); }
+    } catch (err) { console.error(err); showError("<?= __('assignment_failed') ?>"); }
 });
 
 // REJECTION LOGIC
@@ -479,7 +479,7 @@ document.getElementById("rejectForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const reason = document.getElementById("rejectReason").value;
     
-    if (!reason) { alert("Please provide a reason"); return; }
+    if (!reason) { showError("<?= __('provide_reason') ?>"); return; }
 
     try {
         const res = await fetch('/cargo-project/backend/api/admin/reject_request.php', {
@@ -489,13 +489,13 @@ document.getElementById("rejectForm").addEventListener("submit", async (e) => {
         });
         const result = await res.json();
         if (result.success) {
-            alert("Request rejected successfully!");
+            showSuccess("<?= __('request_rejected_success') ?>");
             closeRejectModal();
             window.location.reload();
         } else {
-            alert("Error: " + result.error);
+            showError("<?= __('error_label') ?>: " + result.error);
         }
-    } catch (err) { console.error(err); alert("Rejection failed"); }
+    } catch (err) { console.error(err); showError("<?= __('rejection_failed') ?>"); }
 });
 
 fetchDetails(); // Call new fetch function

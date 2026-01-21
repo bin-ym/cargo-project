@@ -11,6 +11,8 @@ require_once __DIR__ . '/../layout/navbar.php';
 <title>Login • CargoConnect</title>
 <script src="https://unpkg.com/feather-icons"></script>
 <link rel="stylesheet" href="../css/public.css">
+<link rel="stylesheet" href="../assets/css/toast.css">
+<script src="../assets/js/toast.js" defer></script>
 <style>
     /* Login page overrides */
     .login-hero {
@@ -173,7 +175,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         if (data.success) {
             if (data.must_change_password) {
-                alert('Please change your password to continue.');
+                showInfo('Please change your password to continue.');
                 window.location.href = '/cargo-project/frontend/auth/change_password.php';
             } else {
                 if (data.user.role === 'admin') window.location.href = '/cargo-project/frontend/admin/dashboard.php';
@@ -182,11 +184,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 else window.location.href = '/cargo-project/index.php';
             }
         } else {
-            alert(data.error || 'Login failed');
+            showError(data.error || 'Login failed');
         }
     } catch (err) {
         console.error('Login error:', err);
-        alert('Network error: ' + err.message);
+        showError('Network error: ' + err.message);
     } finally {
         btn.textContent = originalBtnText;
         btn.disabled = false;

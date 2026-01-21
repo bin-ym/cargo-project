@@ -11,6 +11,8 @@ require_once __DIR__ . '/../../backend/config/languages.php';
     <title><?= __('Contact us_title') ?></title>
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../assets/css/toast.css">
+    <script src="../assets/js/toast.js" defer></script>
 </head>
 <body>
 
@@ -48,7 +50,7 @@ require_once __DIR__ . '/../../backend/config/languages.php';
         <div class="contact-form">
             <h3><?= __('send_message_h3') ?></h3>
 
-            <form method="POST" action="#">
+            <form id="contactForm">
                 <div class="form-row">
                     <input type="text" name="first_name" placeholder="<?= __('first_name_placeholder') ?>" required>
                     <input type="text" name="last_name" placeholder="<?= __('last_name_placeholder') ?>" required>
@@ -70,6 +72,42 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 
 <script>
     feather.replace();
+
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('../../backend/api/public/submit_contact.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                showSuccess('Message sent successfully!');
+                this.reset();
+            } else {
+                showError(result.error || 'Failed to send message');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('An error occurred. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    });
 </script>
 
 </body>

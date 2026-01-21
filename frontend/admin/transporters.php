@@ -348,7 +348,7 @@ async function deleteTransporter(id) {
             if (result.success) {
                 fetchTransporters();
             } else {
-                alert("Error: " + result.error);
+                showError("<?= __('error_label') ?>: " + result.error);
             }
         } catch (error) {
             console.error("Error deleting:", error);
@@ -364,7 +364,7 @@ form.addEventListener("submit", async (e) => {
     const confirmPassword = document.getElementById("confirmPassword").value;
 
     if (!id && password !== confirmPassword) {
-        alert("<?= __('passwords_dont_match') ?>");
+        showError("<?= __('passwords_dont_match') ?>");
         return;
     }
 
@@ -400,13 +400,13 @@ form.addEventListener("submit", async (e) => {
         if (result.success) {
             closeModal();
             fetchTransporters();
-            alert(id ? "<?= __('transporter_updated') ?>" : "<?= __('transporter_created') ?>");
+            showSuccess(id ? "<?= __('transporter_updated') ?>" : "<?= __('transporter_created') ?>");
         } else {
-            alert("Error: " + result.error);
+            showError("<?= __('error_label') ?>: " + result.error);
         }
     } catch (error) {
         console.error("Error saving:", error);
-        alert("An error occurred while saving.");
+        showError("<?= __('save_error') ?>");
     }
 });
 

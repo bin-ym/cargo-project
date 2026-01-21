@@ -35,10 +35,10 @@ class RequestController {
         }
     }
 
-    public function getById($id) {
+        public function getById($id) {
         try {
             $sql = "SELECT r.*, u.full_name as customer_name, u.phone, u.email,
-                           s.transporter_id, t_user.full_name as transporter_name, s.status as shipment_status, s.delivered_at
+                           s.transporter_id, t_user.full_name as transporter_name, s.status as shipment_status, s.delivered_at, s.picked_up_at
                     FROM cargo_requests r 
                     JOIN customers c ON r.customer_id = c.id
                     JOIN users u ON c.user_id = u.id 
@@ -184,6 +184,12 @@ class RequestController {
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$status, $requestId]);
             
+            // If in-transit, set picked_up_at
+            if ($status === 'in-transit') {
+                $stmtPick = $this->db->prepare("UPDATE shipments SET picked_up_at = NOW() WHERE request_id = ?");
+                $stmtPick->execute([$requestId]);
+            }
+
             // If delivered, also mark request as completed and release vehicle
             if ($status === 'delivered') {
                 // 1. Update request status

@@ -53,11 +53,11 @@ async function fetchAssignments() {
         if (result.success) {
             renderTable(result.data);
         } else {
-            showError("<?= __('failed_load_assignments') ?>");
+            renderTableError("<?= __('failed_load_assignments') ?>");
         }
     } catch (error) {
         console.error('Error fetching assignments:', error);
-        showError("<?= __('error_load_assignments') ?>");
+        renderTableError("<?= __('error_load_assignments') ?>");
     }
 }
 
@@ -102,7 +102,7 @@ function renderTable(data) {
     feather.replace();
 }
 
-function showError(message) {
+function renderTableError(message) {
     const body = document.getElementById("tableBody");
     body.innerHTML = `
         <tr>

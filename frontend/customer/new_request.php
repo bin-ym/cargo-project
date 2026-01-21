@@ -70,7 +70,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                             
                             <div style="margin-bottom: 20px;">
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= __('pickup_date') ?></label>
-                                <input type="date" id="pickup_date" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                                <input type="date" id="pickup_date" onchange="calculatePrice()" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                             </div>
                             
                             <h4 style="margin: 30px 0 15px; color: #0f172a;"><?= __('cargo_items') ?></h4>
@@ -180,7 +180,16 @@ $txRef = "TX-" . uniqid() . "-" . time();
 
             function initMap() {
                 // Default center (Addis Ababa)
-                map = L.map('map').setView([9.03, 38.74], 12);
+                // Default center (Addis Ababa), Restrict to Ethiopia
+                const ethiopiaBounds = [
+                    [3.3, 33.0], // South-West
+                    [14.9, 48.0] // North-East
+                ];
+                map = L.map('map', {
+                    maxBounds: ethiopiaBounds,
+                    minZoom: 6
+                }).setView([9.03, 38.74], 12);
+                
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
                 map.on('click', function(e) {
@@ -218,12 +227,40 @@ $txRef = "TX-" . uniqid() . "-" . time();
 
                         map.setView(latlng, 14);
                     } else {
-                        alert("<?= __('location_not_found') ?>");
+                        showInfo("<?= __('location_not_found') ?>");
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("<?= __('location_search_failed') ?>");
+                    showError("<?= __('location_search_failed') ?>");
                 }
+            }
+
+            // Ethiopia Border Polygon (Simplified)
+            // GeoJSON Polygon Coordinates (Lng, Lat)
+            const ethiopiaPolygon = [
+                [33.00, 7.50], [34.50, 6.00], [34.00, 4.00], [36.00, 4.50], 
+                [39.00, 3.50], [42.00, 4.00], [42.00, 8.00], [45.00, 5.50], 
+                [47.00, 8.00], [48.00, 11.00], [42.50, 12.50], [42.00, 14.50],
+                [40.00, 14.50], [38.00, 14.50], [36.50, 14.00], [35.00, 13.00],
+                [36.00, 11.00], [35.00, 9.00], [33.00, 7.50]
+            ];
+
+            // Ray-Casting algorithm for Point in Polyon
+            function isPointInEthiopia(lat, lng) {
+                // Approximate Bounding Box Check first for speed
+                if (lat < 3.3 || lat > 15.0 || lng < 33.0 || lng > 48.0) return false;
+
+                // Detailed Polygon Check
+                let inside = false;
+                for (let i = 0, j = ethiopiaPolygon.length - 1; i < ethiopiaPolygon.length; j = i++) {
+                    const xi = ethiopiaPolygon[i][0], yi = ethiopiaPolygon[i][1];
+                    const xj = ethiopiaPolygon[j][0], yj = ethiopiaPolygon[j][1];
+                    
+                    const intersect = ((yi > lat) != (yj > lat)) &&
+                        (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+                return inside;
             }
 
             // Reverse Geocoding (Coords -> Address)
@@ -231,21 +268,41 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 try {
                     const res = await fetch(`/cargo-project/backend/api/utils/geocode.php?type=reverse&q[lat]=${lat}&q[lng]=${lng}`);
                     const data = await res.json();
+                    
+                    if (data.error) {
+                         showError(type + ": " + data.error);
+                         if (type === 'pickup') {
+                             map.removeLayer(pickupMarker);
+                             pickupMarker = null;
+                             document.getElementById('pickup_lat').value = '';
+                             document.getElementById('pickup_lng').value = '';
+                         } else {
+                             map.removeLayer(dropoffMarker);
+                             dropoffMarker = null;
+                             document.getElementById('dropoff_lat').value = '';
+                             document.getElementById('dropoff_lng').value = '';
+                         }
+                         document.getElementById(type + '_location').value = '';
+                         return;
+                    }
 
                     const name = data.display_name ?? `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-
                     if (type === 'pickup') {
                         document.getElementById('pickup_location').value = name;
                     } else {
                         document.getElementById('dropoff_location').value = name;
                     }
                 } catch {
-                    const fallback = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    document.getElementById(type + '_location').value = fallback;
+                    // Fallback handled by previous validation
                 }
             }
 
             function setPickup(latlng, fetchAddress = false) {
+                if (!isPointInEthiopia(latlng.lat, latlng.lng)) {
+                    showError("<?= __('location_outside_ethiopia') ?? 'Location is outside Ethiopia borders.' ?>");
+                    return;
+                }
+
                 if (pickupMarker) map.removeLayer(pickupMarker);
                 pickupMarker = L.marker(latlng, {icon: createIcon('green')}).addTo(map).bindPopup("<?= __('pickup_location_popup') ?>").openPopup();
                 
@@ -261,6 +318,11 @@ $txRef = "TX-" . uniqid() . "-" . time();
             }
 
             function setDropoff(latlng, fetchAddress = false) {
+                if (!isPointInEthiopia(latlng.lat, latlng.lng)) {
+                    showError("<?= __('location_outside_ethiopia') ?? 'Location is outside Ethiopia borders.' ?>");
+                    return;
+                }
+
                 if (dropoffMarker) map.removeLayer(dropoffMarker);
                 dropoffMarker = L.marker(latlng, {icon: createIcon('red')}).addTo(map).bindPopup("<?= __('dropoff_location_popup') ?>").openPopup();
                 
@@ -320,11 +382,11 @@ $txRef = "TX-" . uniqid() . "-" . time();
                         
                         calculatePrice();
                     } else {
-                        alert("<?= __('no_road_route') ?>");
+                        showError("<?= __('no_road_route') ?>");
                     }
                 } catch (error) {
                     console.error("Routing error:", error);
-                    alert("<?= __('error_calculating_route') ?>");
+                    showError("<?= __('error_calculating_route') ?>");
                 }
             }
 
@@ -405,7 +467,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 const required = ['pickup_lat', 'dropoff_lat', 'pickup_date'];
                 for (let id of required) {
                     if (!document.getElementById(id).value) {
-                        alert("<?= __('fill_all_fields') ?>");
+                        showError("<?= __('fill_all_fields') ?>");
                         return;
                     }
                 }
@@ -413,7 +475,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 // Validate Items
                 const itemDivs = document.querySelectorAll('.cargo-item');
                 if (itemDivs.length === 0) {
-                    alert("Please add at least one item.");
+                    showError("Please add at least one item.");
                     return;
                 }
 
@@ -443,7 +505,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 });
 
                 if (!valid) {
-                    alert("Please fill in all item details.");
+                    showError("Please fill in all item details.");
                     return;
                 }
 
@@ -480,13 +542,13 @@ $txRef = "TX-" . uniqid() . "-" . time();
                         // Redirect to Chapa Payment Page
                         window.location.href = result.payment_url;
                     } else {
-                        alert('Error creating request: ' + (result.error || 'Unknown error'));
+                        showError('Error creating request: ' + (result.error || 'Unknown error'));
                         btn.disabled = false;
                         btn.innerHTML = originalText;
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('An error occurred.');
+                    showError('An error occurred.');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                 }
