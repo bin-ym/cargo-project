@@ -223,6 +223,12 @@ $txRef = "TX-" . uniqid() . "-" . time();
             function showInfo(msg) { showRequestMessage(msg, 'info'); }
             function showSuccess(msg) { showRequestMessage(msg, 'success'); }
 
+            // Declare map variables
+            let map;
+            let pickupMarker = null;
+            let dropoffMarker = null;
+            let routeLine = null;
+
             function initMap() {
                 // Default center (Addis Ababa)
                 // Default center (Addis Ababa), Restrict to Ethiopia
