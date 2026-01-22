@@ -18,7 +18,7 @@ require_once __DIR__ . '/../layout/header_customer.php';
         </header>
 
         <div class="content">
-
+            <div id="pageMessage" class="form-message" style="margin-bottom: 20px;"></div>
             <!-- Status Cards -->
             <div class="status-cards">
                 <div class="card card-total">
@@ -100,6 +100,8 @@ require_once __DIR__ . '/../layout/header_customer.php';
                 <label><?= __('comment_optional') ?></label>
                 <textarea id="comment" rows="4"></textarea>
             </div>
+
+            <div id="ratingMessage" class="form-message" style="margin-bottom: 15px;"></div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeRatingModal()">
@@ -269,12 +271,53 @@ require_once __DIR__ . '/../layout/header_customer.php';
 .star.active {
     color: #fbbf24;
 }
+
+/* Form Message */
+.form-message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+    line-height: 1.5;
+}
+.form-message.error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    display: block;
+}
+.form-message.success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    display: block;
+}
 </style>
 
 <script>
 const API_URL = '/cargo-project/backend/api/customer/get_my_requests.php';
 let allRequests = [];
 let currentRequestId = null;
+
+function showPageMessage(msg, type = 'error') {
+    const el = document.getElementById('pageMessage');
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showModalMessage(msg, type = 'error') {
+    const el = document.getElementById('ratingMessage');
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+}
+
+function clearMessages() {
+    document.getElementById('pageMessage').style.display = 'none';
+    document.getElementById('ratingMessage').style.display = 'none';
+}
 
 async function loadRequests() {
     const res = await fetch(API_URL);
@@ -430,7 +473,9 @@ document.getElementById('ratingForm').onsubmit = async e => {
     e.preventDefault();
 
     const rating = document.getElementById('ratingValue').value;
-    if (!rating) return showError("<?= __('select_rating_error') ?>");
+    if (!rating) return showModalMessage("<?= __('select_rating_error') ?>");
+
+    clearMessages();
 
     await fetch('/cargo-project/backend/api/customer/rate_transporter.php', {
         method: 'POST',
@@ -442,7 +487,7 @@ document.getElementById('ratingForm').onsubmit = async e => {
         })
     });
 
-    showSuccess("<?= __('thank_you_rating') ?>");
+    showPageMessage("<?= __('thank_you_rating') ?>", 'success');
     closeRatingModal();
     loadRequests();
 };
@@ -459,15 +504,16 @@ async function deleteRequest(id) {
         
         const result = await response.json();
         
+        clearMessages();
         if (result.success) {
-            showSuccess("<?= __('request_deleted_success') ?>");
+            showPageMessage("<?= __('request_deleted_success') ?>", 'success');
             await loadRequests();
         } else {
-            showError(result.error || 'Delete failed');
+            showPageMessage(result.error || 'Delete failed', 'error');
         }
     } catch (error) {
         console.error('Delete error:', error);
-        showError('An error occurred while deleting the request');
+        showPageMessage('An error occurred while deleting the request', 'error');
     }
 }
 

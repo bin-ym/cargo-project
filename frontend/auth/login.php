@@ -11,8 +11,37 @@ require_once __DIR__ . '/../layout/navbar.php';
 <title>Login • CargoConnect</title>
 <script src="https://unpkg.com/feather-icons"></script>
 <link rel="stylesheet" href="../css/public.css">
-<link rel="stylesheet" href="../assets/css/toast.css">
-<script src="../assets/js/toast.js" defer></script>
+<style>
+    /* Form Message styles */
+    .form-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        width: 100%;
+        text-align: left;
+    }
+    .form-message.error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+    .form-message.success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
+    }
+    .form-message.info {
+        background-color: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        display: block;
+    }
+</style>
 <style>
     /* Login page overrides */
     .login-hero {
@@ -114,6 +143,7 @@ require_once __DIR__ . '/../layout/navbar.php';
     <div class="login-card">
         <h1><?= __('welcome_back') ?></h1>
         <p><?= __('sign_in_to_account') ?></p>
+        <div id="loginMessage" class="form-message"></div>
         <form id="loginForm" method="POST" action="/cargo-project/backend/api/auth/login.php">
             <input type="text" name="username" placeholder="<?= __('username_or_email') ?>" required autofocus>
             
@@ -142,6 +172,22 @@ require_once __DIR__ . '/../layout/navbar.php';
 if (typeof feather !== 'undefined') {
     feather.replace();
 }
+
+function showLoginMessage(msg, type = 'error') {
+    const el = document.getElementById('loginMessage');
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+}
+
+function clearLoginMessage() {
+    document.getElementById('loginMessage').style.display = 'none';
+}
+
+// Redefine total shortcuts
+function showSuccess(msg) { showLoginMessage(msg, 'success'); }
+function showError(msg) { showLoginMessage(msg, 'error'); }
+function showInfo(msg) { showLoginMessage(msg, 'info'); }
 
 function togglePassword(inputId, iconId) {
     const input = document.getElementById(inputId);

@@ -39,6 +39,29 @@ require_once __DIR__ . '/../../backend/config/languages.php';
         .back-link {
             display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none;
         }
+        /* Form Message styles */
+        .form-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            line-height: 1.5;
+            margin-top: 15px;
+            width: 100%;
+            text-align: center;
+        }
+        .form-message.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        .form-message.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +77,7 @@ require_once __DIR__ . '/../../backend/config/languages.php';
                 <input type="email" id="email" required placeholder="<?= __('email_placeholder') ?>">
             </div>
             <button type="submit" class="btn"><?= __('send_reset_link') ?></button>
-            <div id="message" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
+            <div id="message" class="form-message"></div>
         </form>
 
         <a href="login.php" class="back-link"><?= __('back_to_login') ?></a>
@@ -87,18 +110,18 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
         const data = await res.json();
 
         if (data.success) {
-            msg.style.color = 'green';
-            msg.innerText = data.message;
+            msg.className = 'form-message success';
+            msg.textContent = data.message;
             setTimeout(() => {
                 location.href = `reset_password.php?email=${encodeURIComponent(email)}`;
             }, 1500);
         } else {
-            msg.style.color = 'red';
-            msg.innerText = data.error || 'Failed to send email';
+            msg.className = 'form-message error';
+            msg.textContent = data.error || 'Failed to send email';
         }
     } catch (err) {
-        msg.style.color = 'red';
-        msg.innerText = translations.serverError;
+        msg.className = 'form-message error';
+        msg.textContent = translations.serverError;
     }
 
     btn.disabled = false;

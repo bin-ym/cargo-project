@@ -102,6 +102,28 @@ if ($requestId && !is_numeric($requestId)) {
     font-size: 13px;
     color: #64748b;
 }
+/* Form Message styles */
+.form-message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.form-message.error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    display: block;
+}
+.form-message.success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    display: block;
+}
 </style>
 
 <div class="customer-layout">
@@ -111,6 +133,8 @@ if ($requestId && !is_numeric($requestId)) {
         <header class="topbar" style="margin-bottom: 24px;">
             <h2><?= __('track_shipment_title') ?>#CT-<?= str_pad($requestId, 4, '0', STR_PAD_LEFT) ?></h2>
         </header>
+
+        <div id="trackMessage" class="form-message"></div>
 
         <div class="tracking-wrapper">
             <!-- LEFT: STATUS -->
@@ -155,9 +179,21 @@ if ($requestId && !is_numeric($requestId)) {
 
 <script>
 const requestId = '<?= htmlspecialchars($_GET['id'] ?? '') ?>';
+
+function showTrackMessage(msg, type = 'error') {
+    const el = document.getElementById('trackMessage');
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+}
+
+function showError(msg) { showTrackMessage(msg, 'error'); }
+
 if (!requestId) {
     showError('Invalid Request ID');
-    window.location.href = 'my_requests.php';
+    setTimeout(() => {
+        window.location.href = 'my_requests.php';
+    }, 2000);
 }
 let map;
 

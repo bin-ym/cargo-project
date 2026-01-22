@@ -58,6 +58,29 @@
             cursor: pointer;
         }
         .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        /* Form Message styles */
+        .form-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            line-height: 1.5;
+            margin-top: 15px;
+            width: 100%;
+            text-align: center;
+        }
+        .form-message.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        .form-message.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
     </style>
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
@@ -75,7 +98,7 @@
             <input type="text" id="otp" class="otp-input" placeholder="000000" maxlength="6" required pattern="\d{6}">
             <button type="submit" class="btn">Verify Account</button>
         </form>
-        <div id="message" style="margin-top: 15px; font-size: 14px;"></div>
+        <div id="message" class="form-message"></div>
     </div>
 </div>
 
@@ -92,7 +115,7 @@
         const msg = document.getElementById('message');
 
         if (!email) {
-            msg.style.color = 'red';
+            msg.className = 'form-message error';
             msg.innerText = 'Email missing from URL. Please register again.';
             return;
         }
@@ -122,13 +145,13 @@
                 `;
                 feather.replace();
             } else {
-                msg.style.color = 'red';
+                msg.className = 'form-message error';
                 msg.innerText = data.error || 'Invalid code.';
                 btn.disabled = false;
                 btn.innerText = 'Verify Account';
             }
         } catch (err) {
-            msg.style.color = 'red';
+            msg.className = 'form-message error';
             msg.innerText = 'Server error.';
             btn.disabled = false;
             btn.innerText = 'Verify Account';

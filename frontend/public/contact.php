@@ -11,8 +11,28 @@ require_once __DIR__ . '/../../backend/config/languages.php';
     <title><?= __('Contact us_title') ?></title>
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="../css/public.css">
-    <link rel="stylesheet" href="../assets/css/toast.css">
-    <script src="../assets/js/toast.js" defer></script>
+    <style>
+        .form-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .form-message.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        .form-message.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
@@ -49,7 +69,7 @@ require_once __DIR__ . '/../../backend/config/languages.php';
         <!-- Contact Form -->
         <div class="contact-form">
             <h3><?= __('send_message_h3') ?></h3>
-
+            <div id="contactMessage" class="form-message"></div>
             <form id="contactForm">
                 <div class="form-row">
                     <input type="text" name="first_name" placeholder="<?= __('first_name_placeholder') ?>" required>
@@ -72,6 +92,21 @@ require_once __DIR__ . '/../../backend/config/languages.php';
 
 <script>
     feather.replace();
+
+    function showContactMessage(msg, type = 'error') {
+        const el = document.getElementById('contactMessage');
+        el.textContent = msg;
+        el.className = 'form-message ' + type;
+        el.style.display = 'block';
+    }
+
+    function clearContactMessage() {
+        document.getElementById('contactMessage').style.display = 'none';
+    }
+
+    // Redefine total shortcuts
+    function showSuccess(msg) { showContactMessage(msg, 'success'); }
+    function showError(msg) { showContactMessage(msg, 'error'); }
 
     document.getElementById('contactForm').addEventListener('submit', async function(e) {
         e.preventDefault();

@@ -10,6 +10,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 require_once __DIR__ . '/../layout/header_customer.php';
 ?>
 
+<style>
+    /* Form Message styles */
+    .form-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+    .form-message.error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+    .form-message.success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
+    }
+</style>
+
 <div class="customer-layout">
     <?php include __DIR__ . '/../layout/navbar_customer.php'; ?>
 
@@ -22,6 +46,7 @@ require_once __DIR__ . '/../layout/header_customer.php';
         </header>
 
         <div class="content">
+            <div id="dashboardMessage" class="form-message" style="margin-bottom: 20px;"></div>
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3><?= __('my_requests') ?></h3>
@@ -84,6 +109,22 @@ require_once __DIR__ . '/../layout/header_customer.php';
 </div>
 
 <script>
+function showDashboardMessage(msg, type = 'error') {
+    const el = document.getElementById('dashboardMessage');
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+    el.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearDashboardMessage() {
+    document.getElementById('dashboardMessage').style.display = 'none';
+}
+
+// Global shortcut overrides
+function showError(msg) { showDashboardMessage(msg, 'error'); }
+function showSuccess(msg) { showDashboardMessage(msg, 'success'); }
+
 // Load dashboard stats
 async function loadDashboardStats() {
     try {

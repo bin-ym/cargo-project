@@ -21,6 +21,34 @@ $txRef = "TX-" . uniqid() . "-" . time();
     .input-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #64748b; cursor: pointer; }
     .spinner-small { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Form Message styles */
+    .form-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+    .form-message.error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+    .form-message.success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
+    }
+    .form-message.info {
+        background-color: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        display: block;
+    }
 </style>
 
 <div class="customer-layout">
@@ -156,7 +184,9 @@ $txRef = "TX-" . uniqid() . "-" . time();
                                 <span id="disp_price">0 ETB</span>
                             </div>
                             
-                            <button type="button" id="submitBtn" onclick="submitRequest()" class="btn btn-primary" style="width: 100%; background: #16a34a; border-color: #16a34a; margin-top: 20px;">
+                            <div id="requestMessage" class="form-message" style="margin-top: 20px;"></div>
+
+                            <button type="button" id="submitBtn" onclick="submitRequest()" class="btn btn-primary" style="width: 100%; background: #16a34a; border-color: #16a34a; margin-top: 10px;">
                                 <?= __('submit_request') ?>
                             </button>
                         </div>
@@ -175,8 +205,23 @@ $txRef = "TX-" . uniqid() . "-" . time();
             document.getElementById('pickup_date').min = new Date().toISOString().split('T')[0];
 
             /* MAP LOGIC */
-            let map, pickupMarker, dropoffMarker, routeLine;
             let selectionMode = 'pickup'; // pickup or dropoff
+
+            function showRequestMessage(msg, type = 'error') {
+                const el = document.getElementById('requestMessage');
+                el.textContent = msg;
+                el.className = 'form-message ' + type;
+                el.style.display = 'block';
+            }
+
+            function clearMessage() {
+                document.getElementById('requestMessage').style.display = 'none';
+            }
+
+            // Redefine global shortcuts locally to avoid toasts
+            function showError(msg) { showRequestMessage(msg, 'error'); }
+            function showInfo(msg) { showRequestMessage(msg, 'info'); }
+            function showSuccess(msg) { showRequestMessage(msg, 'success'); }
 
             function initMap() {
                 // Default center (Addis Ababa)
@@ -468,6 +513,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 for (let id of required) {
                     if (!document.getElementById(id).value) {
                         showError("<?= __('fill_all_fields') ?>");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                         return;
                     }
                 }
@@ -530,6 +576,7 @@ $txRef = "TX-" . uniqid() . "-" . time();
                 };
 
                 try {
+                    clearMessage();
                     const response = await fetch('/cargo-project/backend/api/customer/create_request.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

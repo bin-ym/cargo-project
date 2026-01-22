@@ -117,11 +117,28 @@ require_once __DIR__ . '/../layout/navbar.php';
         transform: translateY(-1px);
     }
 
-    #registerMessage {
-        margin-top: 20px;
-        font-size: 0.95rem;
+    /* Form Message styles */
+    .form-message {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        width: 100%;
         text-align: center;
-        font-weight: 500;
+    }
+    .form-message.error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        display: block;
+    }
+    .form-message.success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        display: block;
     }
 
     /* Password strength & toggles */
@@ -224,7 +241,7 @@ require_once __DIR__ . '/../layout/navbar.php';
                 <button class="btn" type="submit"><?= __('create_account') ?></button>
             </div>
 
-            <div id="registerMessage"></div>
+            <div id="registerMessage" class="form-message"></div>
         </form>
 
         <div class="full-width" style="text-align:center; margin-top:10px;">
@@ -300,7 +317,7 @@ registerForm.addEventListener('submit', async (e) => {
         });
 
         const data = await res.json();
-        registerMessage.style.color = data.success ? 'green' : 'red';
+        registerMessage.className = 'form-message ' + (data.success ? 'success' : 'error');
         registerMessage.textContent = data.success ? data.message : data.error;
 
         if (data.success) {
@@ -310,7 +327,7 @@ registerForm.addEventListener('submit', async (e) => {
         }
 
     } catch (err) {
-        registerMessage.style.color = 'red';
+        registerMessage.className = 'form-message error';
         registerMessage.textContent = translations.server_error;
     }
 
